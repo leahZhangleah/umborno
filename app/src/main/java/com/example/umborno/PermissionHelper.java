@@ -50,10 +50,6 @@ public class PermissionHelper {
             PERMISSION_WRITE_EXTERNAL_STORAGE
     };
 
-    interface LocationPermissionGrant {
-        void onPermissionGranted();
-        void onPermissionNotGranted();
-    }
 
     public PermissionHelper(Activity context) {
         this.context = context;
@@ -92,23 +88,6 @@ public class PermissionHelper {
                 });
         dialogBuilder.show();
     }
-
-    //deal with permission request result callback
-    public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults, LocationPermissionGrant locationPermissionGrant){
-        Log.d(TAG, "onRequestPermissionResult");
-        switch (requestCode){
-            case CODE_ACCESS_FINE_LOCATION:
-                if(grantResults.length<=0){
-                    Log.i(TAG, "onRequestPermission Cancelled");
-                } else if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    locationPermissionGrant.onPermissionGranted();
-                }else{
-                   //todo
-                    locationPermissionGrant.onPermissionNotGranted();
-                }
-        }
-    }
-
 
 
 }

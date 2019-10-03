@@ -6,4 +6,7 @@
     <string name="location_alert_msg">Turn On Location Services to Allow UmbOrNo to Determine Your Location</string>
     <string name="location_alert_pos_btn">Location Settings</string>
     <string name="location_alert_neg_btn">Cancel</string>
+    <string name="gps_title">Enable GPS service</string>
+    <string name="gps_msg">UmbOrNo needs to use GPS to get concise location</string>
+    <string name="rational_msg">UmbOrNo needs to use location service to determine your location</string>
 </resources>

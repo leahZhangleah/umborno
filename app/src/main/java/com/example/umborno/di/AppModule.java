@@ -5,6 +5,7 @@ import android.content.Context;
 
 import androidx.room.Room;
 
+import com.example.umborno.MainActivity;
 import com.example.umborno.db.LocalDataSource;
 import com.example.umborno.db.WeatherDao;
 import com.example.umborno.db.WeatherDatabase;
@@ -15,6 +16,8 @@ import com.example.umborno.http.LiveDataCallAdapterFactory;
 import com.example.umborno.http.RemoteDataSource;
 import com.example.umborno.http.RequestInterceptor;
 import com.example.umborno.http.WeatherRepository;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -34,12 +37,18 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 @Module(includes = {ViewModelModule.class})
 public class AppModule {
+
     @Provides
     @Singleton
     Context provideContext(Application application){
         return application;
     }
 
+    @Provides
+    @Singleton
+    static FusedLocationProviderClient providerClient(Context context){
+        return LocationServices.getFusedLocationProviderClient(context);
+    }
     //Database injection
     @Provides
     @Singleton

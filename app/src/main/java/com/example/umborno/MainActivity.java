@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 
@@ -36,7 +37,10 @@ import com.example.umborno.http.Resource;
 import com.example.umborno.http.Status;
 import com.example.umborno.model.CurrentWeather;
 import com.example.umborno.schedule.MyJobService;
+import com.example.umborno.util.Utilities;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,8 +56,7 @@ import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 
-public class MainActivity extends AppCompatActivity implements HasSupportFragmentInjector,
-        LocationHelper.LocationRetrievedCallback, SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends AppCompatActivity implements HasSupportFragmentInjector, SwipeRefreshLayout.OnRefreshListener {
     private static final String TAG = "MainActivity";
     @Inject
     DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
@@ -66,11 +69,22 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     WeatherViewModelProviderFactory factory;
     private WeatherViewModel weatherViewModel;
     private boolean isLoading = true;
-
     @Inject
-    public LocationHelper locationHelper;
+    public FusedLocationProviderClient fusedLocationProviderClient;
     @Inject
     public PermissionHelper permissionHelper;
+
+    private LocationHelper locationHelper;
+
+    private LocationCallback locationCallback = new LocationCallback(){
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            super.onLocationResult(locationResult);
+            Location location = locationResult.getLastLocation();
+            Log.d(TAG, "onLocationRetrieved: "+ location.getLongitude() + " "+location.getLatitude());
+            weatherViewModel.setLocMutableLiveData(location.getLongitude(),location.getLatitude());
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,31 +103,53 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
             @Override
             public void onChanged(Resource<CurrentWeather> currentWeatherResource) {
                 if(currentWeatherResource.getStatus()!= Status.LOADING){
-                    swipeRefreshLayout.setRefreshing(false);
                     isLoading = false;
+                    swipeRefreshLayout.setRefreshing(isLoading);
                 }
                 Log.d(TAG, "resource status: "+currentWeatherResource.getStatus());
                 Log.d(TAG, "resource msg: "+currentWeatherResource.getMsg());
                 Log.d(TAG, "weather name: "+currentWeatherResource.getData());
             }
         });
-        new Thread(new MyLocationRunnable()).start();
+
+        checkGpsEnabled();
 
         //bind to location service
         //bindLocationService();
 
     }
 
-    @Override
-    public void onLocationRetrieved(double lon, double lat) {
-        Log.d(TAG, "onLocationRetrieved: "+ lon + " "+lat);
-        weatherViewModel.setLocMutableLiveData(lon,lat);
+    private void checkGpsEnabled() {
+        if(Utilities.isLocationProviderEnabled(this)){
+            checkLocationPermission();
+        }else{
+            Utilities.enableLocationProvider(this,getString(R.string.gps_title),getString(R.string.gps_msg));
+        }
+    }
+
+    private void checkLocationPermission(){
+        String permission = PermissionHelper.PERMISSION_ACCESS_FINE_LOCATION;
+        if(permissionHelper.checkIfPermissionGranted(permission)){
+            startLocationUpdates();
+        }else{
+            String rationalMsg =getString(R.string.rational_msg);
+            permissionHelper.requestPermissionFor(permission,rationalMsg,PermissionHelper.CODE_ACCESS_FINE_LOCATION);
+        }
+    }
+
+    private void startLocationUpdates(){
+        if(locationHelper==null){
+            locationHelper = LocationHelper.instance(this,locationCallback,fusedLocationProviderClient);
+        }else{
+            locationHelper.requestCurrentLocation();
+        }
     }
 
     @Override
     public void onRefresh() {
         if(isLoading) return;
-        new Thread(new MyLocationRunnable()).start();
+        Log.d(TAG, "onRefresh: ");
+        checkGpsEnabled();
     }
 
     /*
@@ -147,13 +183,13 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     //To create a custom runnable as static instead of having runnable directly inside thread is to avoid
     //having reference from runnable to our activity, so when our activity is destroyed or has configuration
     //change, but our runnable is still running, we can then avoid memory leak, since now there's no reference
-    class MyLocationRunnable implements Runnable {
+    /*class MyLocationRunnable implements Runnable {
         @Override
         public void run() {
             Log.d(TAG, "location runnable");
             locationHelper.requestCurrentLocation();
         }
-    }
+    }*/
 
     @Override
     protected void onStart() {
@@ -308,11 +344,17 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         Log.d(TAG, "onRequestPermissionsResult: ");
-        switch (requestCode){
+        switch (requestCode) {
             case PermissionHelper.CODE_ACCESS_FINE_LOCATION:
-                permissionHelper.onRequestPermissionResult(requestCode,permissions,grantResults,locationHelper);
+                if (grantResults.length <= 0) {
+                    Log.i(TAG, "onRequestPermission Cancelled");
+                } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startLocationUpdates();
+                } else {
+                    //todo
+                    Log.d(TAG, "onRequestPermissionsResult: not granted");
+                }
         }
-
 
     }
 

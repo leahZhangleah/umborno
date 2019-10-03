@@ -8,72 +8,73 @@ import android.location.LocationManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.OnLifecycleEvent;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+
+import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
 
-public class LocationHelper implements PermissionHelper.LocationPermissionGrant {
+public class LocationHelper implements LifecycleObserver {
     private static final String TAG = "LocationHelper";
-    public static final int CODE_LOCATION_SETTINGS = 10;
-    private String provider;
     private FusedLocationProviderClient fusedLocationProviderClient;
-    private PermissionHelper permissionHelper;
-    private LocationRetrievedCallback callback;
 
-    @Inject
-    public LocationHelper(FusedLocationProviderClient client,PermissionHelper helper,LocationRetrievedCallback callback) {
-        Log.d(TAG, "LocationHelper: ");
-        this.fusedLocationProviderClient = client;
-        this.permissionHelper = helper;
-        this.callback = callback;
+    private static LocationHelper mInstance;
+    private LocationCallback locationCallback;
 
+    private LocationHelper(LifecycleOwner lifecycleOwner,LocationCallback locationCallback,
+                           FusedLocationProviderClient fusedLocationProviderClient) {
+        lifecycleOwner.getLifecycle().addObserver(this);
+        this.locationCallback = locationCallback;
+        this.fusedLocationProviderClient = fusedLocationProviderClient;
     }
-    
 
-    public void requestCurrentLocation(){
-        Log.d(TAG, "requestCurrentLocation: ");
-        String permission = PermissionHelper.PERMISSION_ACCESS_FINE_LOCATION;
-        if(permissionHelper.checkIfPermissionGranted(permission)){
-            getLocation();
-        }else{
-            String rationalMsg ="UmbOrNo needs to use location service to determine your location";
-            permissionHelper.requestPermissionFor(permission,rationalMsg,PermissionHelper.CODE_ACCESS_FINE_LOCATION);
+    public static LocationHelper instance(LifecycleOwner lifecycleOwner,LocationCallback locationCallback,FusedLocationProviderClient fusedLocationProviderClient){
+        if(mInstance==null){
+            Log.d(TAG, "instance: is null");
+            return new LocationHelper(lifecycleOwner,locationCallback,fusedLocationProviderClient);
         }
+        Log.d(TAG, "instance: is not null");
+        return mInstance;
     }
 
-
-    private Intent getIntent(){
-        Intent intent = new Intent();
-        intent.setAction(LocationUpdatesBroadcastReceiver.ACTION_PROCESS_UPDATES);
-        return intent;
+    private LocationRequest createLocationSetting(){
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setNumUpdates(1);
+        locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        locationRequest.setSmallestDisplacement(2);
+        return locationRequest;
     }
 
-
-    @Override
-    public void onPermissionGranted() {
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    void requestCurrentLocation(){
+        Log.d(TAG, "requestCurrentLocation: ");
         getLocation();
     }
 
-    @Override
-    public void onPermissionNotGranted() {
-
-        //todo
-    }
-
-    public interface LocationRetrievedCallback{
-        void onLocationRetrieved(double lon,double lat);
-    }
-
-
     @SuppressLint("MissingPermission")
-    private void getLocation(){
+     void getLocation(){
         Log.d(TAG, "getLocation: ");
-        fusedLocationProviderClient.getLastLocation()
+        if(fusedLocationProviderClient!=null){
+            fusedLocationProviderClient.requestLocationUpdates(createLocationSetting(),locationCallback,null);
+        }else{
+            Log.d(TAG, "getLocation: fused client is null");
+        }
+        /*fusedLocationProviderClient.getLastLocation()
             .addOnCompleteListener(new OnCompleteListener<Location>() {
                 @Override
                 public void onComplete(@NonNull Task<Location> task) {
@@ -92,9 +93,18 @@ public class LocationHelper implements PermissionHelper.LocationPermissionGrant 
                 public void onFailure(@NonNull Exception e) {
 
                 }
-            });
+            });*/
 
     }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    void stopLocationUpdates(){
+        if(fusedLocationProviderClient!=null){
+            fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+        }
+    }
+
+
 
     /*
     todo: steps in using fusedLocationProvider
@@ -174,7 +184,14 @@ public class LocationHelper implements PermissionHelper.LocationPermissionGrant 
            }
        });
 
-   }*/
+   }
+
+    private Intent getIntent(){
+        Intent intent = new Intent();
+        intent.setAction(LocationUpdatesBroadcastReceiver.ACTION_PROCESS_UPDATES);
+        return intent;
+    }
+   */
 
 
 }
