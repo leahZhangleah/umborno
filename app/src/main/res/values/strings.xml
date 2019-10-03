@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">UmbOrNo</string>
+    <string name="pause">PAUSE LOCATION UPDATES</string>
+    <string name="resume">RESUME LOCATION UPDATES</string>
+    <string name="location_alert_title">Enable Location</string>
+    <string name="location_alert_msg">Turn On Location Services to Allow UmbOrNo to Determine Your Location</string>
+    <string name="location_alert_pos_btn">Location Settings</string>
+    <string name="location_alert_neg_btn">Cancel</string>
+</resources>
