@@ -9,4 +9,7 @@
     <string name="gps_title">Enable GPS service</string>
     <string name="gps_msg">UmbOrNo needs to use GPS to get concise location</string>
     <string name="rational_msg">UmbOrNo needs to use location service to determine your location</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

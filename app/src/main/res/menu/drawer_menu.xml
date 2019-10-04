@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/main"
+            android:icon="@drawable/ic_launcher_background"
+            android:title="current weather">
+        </item>
+        <item
+            android:id="@+id/reminder"
+            android:icon="@drawable/ic_launcher_background"
+            android:title="Set reminder">
+        </item>
+        <item
+            android:id="@+id/more_cities"
+            android:icon="@drawable/ic_launcher_background"
+            android:title="Add">
+        </item>
+        <item
+            android:id="@+id/settings"
+            android:icon="@drawable/ic_launcher_background"
+            android:title="Settings">
+        </item>
+    </group>
+</menu>

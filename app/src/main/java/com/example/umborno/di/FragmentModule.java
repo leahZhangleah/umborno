@@ -2,6 +2,7 @@ package com.example.umborno.di;
 
 import dagger.Module;
 
-@Module
+@Module(includes = {ViewModelModule.class})
 public abstract class FragmentModule {
+
 }

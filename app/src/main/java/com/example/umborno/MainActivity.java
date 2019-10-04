@@ -14,11 +14,18 @@ import android.location.LocationManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.NavigationUI;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.os.Build;
@@ -29,6 +36,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -41,6 +49,7 @@ import com.example.umborno.util.Utilities;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
+import com.google.android.material.navigation.NavigationView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,35 +65,19 @@ import dagger.android.AndroidInjector;
 import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.HasSupportFragmentInjector;
 
-public class MainActivity extends AppCompatActivity implements HasSupportFragmentInjector, SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends AppCompatActivity implements HasSupportFragmentInjector, NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "MainActivity";
     @Inject
     DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
-    private TextView longitudeValue, latitudeValue;
-    private Button pauseOrResume;
-    private SwipeRefreshLayout swipeRefreshLayout;
+
     private LocationService locationService;
     private boolean shouldUnbind = false;
-    @Inject
-    WeatherViewModelProviderFactory factory;
-    private WeatherViewModel weatherViewModel;
-    private boolean isLoading = true;
-    @Inject
-    public FusedLocationProviderClient fusedLocationProviderClient;
-    @Inject
-    public PermissionHelper permissionHelper;
 
-    private LocationHelper locationHelper;
-
-    private LocationCallback locationCallback = new LocationCallback(){
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            super.onLocationResult(locationResult);
-            Location location = locationResult.getLastLocation();
-            Log.d(TAG, "onLocationRetrieved: "+ location.getLongitude() + " "+location.getLatitude());
-            weatherViewModel.setLocMutableLiveData(location.getLongitude(),location.getLatitude());
-        }
-    };
+    public Toolbar toolbar;
+    public DrawerLayout drawerLayout;
+    public NavigationView navigationView;
+    public NavController navController;
+    //public ActionBarDrawerToggle drawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,65 +85,72 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate: ");
-        longitudeValue = findViewById(R.id.locationLog);
-        latitudeValue = findViewById(R.id.locationLat);
-        pauseOrResume = findViewById(R.id.stopOrStart);
-        swipeRefreshLayout = findViewById(R.id.refresh_layout);
-        swipeRefreshLayout.setOnRefreshListener(this);
-
-        weatherViewModel = ViewModelProviders.of(this,factory).get(WeatherViewModel.class);
-        weatherViewModel.getCurrentWeather().observe(this, new Observer<Resource<CurrentWeather>>() {
-            @Override
-            public void onChanged(Resource<CurrentWeather> currentWeatherResource) {
-                if(currentWeatherResource.getStatus()!= Status.LOADING){
-                    isLoading = false;
-                    swipeRefreshLayout.setRefreshing(isLoading);
-                }
-                Log.d(TAG, "resource status: "+currentWeatherResource.getStatus());
-                Log.d(TAG, "resource msg: "+currentWeatherResource.getMsg());
-                Log.d(TAG, "weather name: "+currentWeatherResource.getData());
-            }
-        });
-
-        checkGpsEnabled();
+        setupNavigation();
 
         //bind to location service
         //bindLocationService();
 
     }
 
-    private void checkGpsEnabled() {
-        if(Utilities.isLocationProviderEnabled(this)){
-            checkLocationPermission();
-        }else{
-            Utilities.enableLocationProvider(this,getString(R.string.gps_title),getString(R.string.gps_msg));
-        }
+    private void setupNavigation() {
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.navigationView);
+        navController = Navigation.findNavController(this,R.id.nav_host_fragment);
+        //drawerToggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.nav_app_bar_open_drawer_description,R.string.nav_app_bar_open_drawer_description);
+
+        NavigationUI.setupActionBarWithNavController(this,navController,drawerLayout);
+        NavigationUI.setupWithNavController(navigationView,navController);
+        navigationView.setNavigationItemSelectedListener(this);
+
+
     }
 
-    private void checkLocationPermission(){
-        String permission = PermissionHelper.PERMISSION_ACCESS_FINE_LOCATION;
-        if(permissionHelper.checkIfPermissionGranted(permission)){
-            startLocationUpdates();
-        }else{
-            String rationalMsg =getString(R.string.rational_msg);
-            permissionHelper.requestPermissionFor(permission,rationalMsg,PermissionHelper.CODE_ACCESS_FINE_LOCATION);
-        }
+    @Override
+    public AndroidInjector<Fragment> supportFragmentInjector() {
+        return dispatchingAndroidInjector;
     }
 
-    private void startLocationUpdates(){
-        if(locationHelper==null){
-            locationHelper = LocationHelper.instance(this,locationCallback,fusedLocationProviderClient);
+    @Override
+    public boolean onSupportNavigateUp() {
+        return NavigationUI.navigateUp(Navigation.findNavController(this,R.id.nav_host_fragment),drawerLayout);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(drawerLayout.isDrawerOpen(GravityCompat.START)){
+            drawerLayout.closeDrawer(GravityCompat.START);
         }else{
-            locationHelper.requestCurrentLocation();
+            super.onBackPressed();
         }
     }
 
     @Override
-    public void onRefresh() {
-        if(isLoading) return;
-        Log.d(TAG, "onRefresh: ");
-        checkGpsEnabled();
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        menuItem.setChecked(true);
+        drawerLayout.closeDrawers();
+        int id = menuItem.getItemId();
+        switch (id){
+            case R.id.main:
+                navController.navigate(R.id.weatherFragment);
+                break;
+            case R.id.reminder:
+                navController.navigate(R.id.reminderFragment);
+                break;
+            case R.id.more_cities:
+                navController.navigate(R.id.addCityFragment);
+                break;
+            case R.id.settings:
+                navController.navigate(R.id.settingsFragment);
+                break;
+        }
+        return true;
     }
+
 
     /*
     schedule a job
@@ -339,30 +339,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         //unbindLocationService();
     }
 
-    //callback for PermissionHelper when we try to request permissions from user
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        Log.d(TAG, "onRequestPermissionsResult: ");
-        switch (requestCode) {
-            case PermissionHelper.CODE_ACCESS_FINE_LOCATION:
-                if (grantResults.length <= 0) {
-                    Log.i(TAG, "onRequestPermission Cancelled");
-                } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startLocationUpdates();
-                } else {
-                    //todo
-                    Log.d(TAG, "onRequestPermissionsResult: not granted");
-                }
-        }
 
-    }
-
-
-    @Override
-    public AndroidInjector<Fragment> supportFragmentInjector() {
-        return dispatchingAndroidInjector;
-    }
 }
 
 

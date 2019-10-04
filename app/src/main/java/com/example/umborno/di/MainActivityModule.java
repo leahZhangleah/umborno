@@ -21,7 +21,7 @@ public abstract class MainActivityModule {
     //WeatherFragmentSubcomponent is child of MainActivitySubcomponent, so we add it here
 
     //create a WeatherFragmentSubcomponent and use FragmentModule.class as it's corresponding module
-    @ContributesAndroidInjector(modules = {FragmentModule.class})
+    @ContributesAndroidInjector(modules = {FragmentModule.class,LocationModule.class})
     abstract WeatherFragment contributeWeatherFragment();
 
 }

@@ -60,6 +60,8 @@ public class WeatherRepository {
             @Override
             protected boolean shouldFetch(@Nullable CurrentWeather currentWeather) {
                 if(currentWeather!=null){
+                    //.d(TAG, "shouldFetch: db data  lon:" + currentWeather.getCoord().getLon()+ " lat: "+currentWeather.getCoord().getLat());
+                    //Log.d(TAG, "shouldFetch: new lat lon: "+lat + ": "+lon);
                     Log.d(TAG, currentWeather.getSys().getCountry());
                     return localDataSource.shouldFetch(currentWeather); //if data in db is timed out
                 }
