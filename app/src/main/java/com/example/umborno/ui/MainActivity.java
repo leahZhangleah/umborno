@@ -1,4 +1,4 @@
-package com.example.umborno;
+package com.example.umborno.ui;
 
 import android.app.PendingIntent;
 import android.app.job.JobInfo;
@@ -13,6 +13,7 @@ import android.location.Location;
 import android.location.LocationManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -41,6 +42,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.umborno.LocationService;
+import com.example.umborno.R;
 import com.example.umborno.http.Resource;
 import com.example.umborno.http.Status;
 import com.example.umborno.model.CurrentWeather;
@@ -68,7 +71,7 @@ import dagger.android.support.HasSupportFragmentInjector;
 public class MainActivity extends AppCompatActivity implements HasSupportFragmentInjector, NavigationView.OnNavigationItemSelectedListener {
     private static final String TAG = "MainActivity";
     @Inject
-    DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
+    public DispatchingAndroidInjector<Fragment> dispatchingAndroidInjector;
 
     private LocationService locationService;
     private boolean shouldUnbind = false;
@@ -77,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     public DrawerLayout drawerLayout;
     public NavigationView navigationView;
     public NavController navController;
-    //public ActionBarDrawerToggle drawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,13 +97,12 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     private void setupNavigation() {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        //getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigationView);
         navController = Navigation.findNavController(this,R.id.nav_host_fragment);
-        //drawerToggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.nav_app_bar_open_drawer_description,R.string.nav_app_bar_open_drawer_description);
 
         NavigationUI.setupActionBarWithNavController(this,navController,drawerLayout);
         NavigationUI.setupWithNavController(navigationView,navController);
@@ -115,19 +116,19 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         return dispatchingAndroidInjector;
     }
 
-    @Override
+   @Override
     public boolean onSupportNavigateUp() {
         return NavigationUI.navigateUp(Navigation.findNavController(this,R.id.nav_host_fragment),drawerLayout);
     }
 
-    @Override
+    /*@Override
     public void onBackPressed() {
         if(drawerLayout.isDrawerOpen(GravityCompat.START)){
             drawerLayout.closeDrawer(GravityCompat.START);
         }else{
             super.onBackPressed();
         }
-    }
+    }*/
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -148,7 +149,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
                 navController.navigate(R.id.settingsFragment);
                 break;
         }
-        return true;
+        return false;
     }
 
 

@@ -11,6 +11,9 @@ import com.example.umborno.db.LocalDataSource;
 import com.example.umborno.db.WeatherDao;
 import com.example.umborno.model.Coord;
 import com.example.umborno.model.CurrentWeather;
+import com.example.umborno.model.Reminder;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -54,6 +57,7 @@ public class WeatherRepository {
 
             @Override
             protected void saveCallResult(@NonNull CurrentWeather item) {
+                item.setDt(String.valueOf(System.currentTimeMillis()));
                 localDataSource.save(item);
             }
 

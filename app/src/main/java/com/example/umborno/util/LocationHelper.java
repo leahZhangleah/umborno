@@ -1,10 +1,7 @@
-package com.example.umborno;
+package com.example.umborno.util;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
 import android.location.Location;
-import android.location.LocationManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -14,93 +11,103 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
 import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
-import java.util.concurrent.Executor;
-
-import javax.inject.Inject;
+import java.util.concurrent.TimeUnit;
 
 public class LocationHelper implements LifecycleObserver {
     private static final String TAG = "LocationHelper";
     private FusedLocationProviderClient fusedLocationProviderClient;
+    private SettingsClient settingsClient;
 
     private static LocationHelper mInstance;
     private LocationCallback locationCallback;
+    private LocationResultHandler resultHandler;
+    private boolean isRequestingLocationUpdates;
 
     private LocationHelper(LifecycleOwner lifecycleOwner,LocationCallback locationCallback,
-                           FusedLocationProviderClient fusedLocationProviderClient) {
+                           FusedLocationProviderClient fusedLocationProviderClient,LocationResultHandler resultHandler) {
         lifecycleOwner.getLifecycle().addObserver(this);
         this.locationCallback = locationCallback;
         this.fusedLocationProviderClient = fusedLocationProviderClient;
+        this.resultHandler = resultHandler;
     }
 
-    public static LocationHelper instance(LifecycleOwner lifecycleOwner,LocationCallback locationCallback,FusedLocationProviderClient fusedLocationProviderClient){
+    public static LocationHelper instance(LifecycleOwner lifecycleOwner,LocationCallback locationCallback,
+                                          FusedLocationProviderClient fusedLocationProviderClient,LocationResultHandler resultHandler){
         if(mInstance==null){
             Log.d(TAG, "instance: is null");
-            return new LocationHelper(lifecycleOwner,locationCallback,fusedLocationProviderClient);
+            return new LocationHelper(lifecycleOwner,locationCallback,fusedLocationProviderClient,resultHandler);
         }
         Log.d(TAG, "instance: is not null");
         return mInstance;
     }
 
-    private LocationRequest createLocationSetting(){
+   private LocationRequest createLocationSetting(){
         LocationRequest locationRequest = LocationRequest.create();
-        locationRequest.setNumUpdates(1);
+        locationRequest.setInterval(TimeUnit.HOURS.toMillis(1));
+        locationRequest.setFastestInterval(TimeUnit.MINUTES.toMillis(30));
         locationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        locationRequest.setSmallestDisplacement(2);
         return locationRequest;
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    void requestCurrentLocation(){
+    public void requestCurrentLocation(){
         Log.d(TAG, "requestCurrentLocation: ");
         getLocation();
     }
 
     @SuppressLint("MissingPermission")
-     void getLocation(){
+     public void getLocation(){
         Log.d(TAG, "getLocation: ");
         if(fusedLocationProviderClient!=null){
-            fusedLocationProviderClient.requestLocationUpdates(createLocationSetting(),locationCallback,null);
+            fusedLocationProviderClient.getLastLocation()
+                    .addOnCompleteListener(new OnCompleteListener<Location>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Location> task) {
+                            if(task.isSuccessful() && task.getResult()!=null){
+                                Location location = task.getResult();
+                                //Intent intent = getIntent();
+                                //intent.putExtra(LocationUpdatesBroadcastReceiver.LON_KEY,location.getLongitude());
+                                //intent.putExtra(LocationUpdatesBroadcastReceiver.LAT_KEY,location.getLatitude());
+                                //context.sendBroadcast(intent);
+                                resultHandler.onLocationRetrieved(location);
+                                if(!isRequestingLocationUpdates){
+                                    Log.d(TAG, "onComplete: request location updates");
+                                    fusedLocationProviderClient.requestLocationUpdates(createLocationSetting(),locationCallback,null);
+                                    isRequestingLocationUpdates = true;
+                                }
+                            }
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+
+                        }
+                    });
+
         }else{
             Log.d(TAG, "getLocation: fused client is null");
         }
-        /*fusedLocationProviderClient.getLastLocation()
-            .addOnCompleteListener(new OnCompleteListener<Location>() {
-                @Override
-                public void onComplete(@NonNull Task<Location> task) {
-                    if(task.isSuccessful() && task.getResult()!=null){
-                        Location location = task.getResult();
-                        //Intent intent = getIntent();
-                        //intent.putExtra(LocationUpdatesBroadcastReceiver.LON_KEY,location.getLongitude());
-                        //intent.putExtra(LocationUpdatesBroadcastReceiver.LAT_KEY,location.getLatitude());
-                        //context.sendBroadcast(intent);
-                        callback.onLocationRetrieved(location.getLongitude(),location.getLatitude());
-                    }
-                }
-            })
-            .addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
 
-                }
-            });*/
 
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-    void stopLocationUpdates(){
-        if(fusedLocationProviderClient!=null){
+    public void stopLocationUpdates(){
+        if(fusedLocationProviderClient!=null && isRequestingLocationUpdates){
             fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+            isRequestingLocationUpdates = false;
         }
     }
 

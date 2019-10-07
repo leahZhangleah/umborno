@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/weatherFragment"
-        android:name="com.example.umborno.WeatherFragment"
+        android:name="com.example.umborno.ui.WeatherFragment"
         android:label="WeatherFragment"
         tools:layout="@layout/fragment_weather">
         <action
@@ -16,22 +16,31 @@
     </fragment>
     <fragment
         android:id="@+id/detailFragment"
-        android:name="com.example.umborno.DetailFragment"
+        android:name="com.example.umborno.ui.DetailFragment"
         android:label="fragment_detail"
         tools:layout="@layout/fragment_detail" />
     <fragment
         android:id="@+id/reminderFragment"
-        android:name="com.example.umborno.ReminderFragment"
+        android:name="com.example.umborno.ui.ReminderFragment"
         android:label="fragment_reminder"
-        tools:layout="@layout/fragment_reminder" />
+        tools:layout="@layout/fragment_reminder" >
+        <action
+            android:id="@+id/action_reminderFragment_to_addReminderFragment"
+            app:destination="@id/addReminderFragment" />
+    </fragment>
     <fragment
         android:id="@+id/addCityFragment"
-        android:name="com.example.umborno.AddCityFragment"
+        android:name="com.example.umborno.ui.AddCityFragment"
         android:label="fragment_add_city"
         tools:layout="@layout/fragment_add_city" />
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.example.umborno.SettingsFragment"
+        android:name="com.example.umborno.ui.SettingsFragment"
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/addReminderFragment"
+        android:name="com.example.umborno.ui.AddReminderFragment"
+        android:label="fragment_add_reminder"
+        tools:layout="@layout/fragment_add_reminder" />
 </navigation>

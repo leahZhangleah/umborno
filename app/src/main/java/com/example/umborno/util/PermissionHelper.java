@@ -1,4 +1,4 @@
-package com.example.umborno;
+package com.example.umborno.util;
 
 import android.Manifest;
 import android.app.Activity;

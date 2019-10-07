@@ -58,7 +58,7 @@ public class CurrentWeather {
 
     public void setDt (String dt)
     {
-        this.dt = String.valueOf(System.currentTimeMillis());
+        this.dt = dt;
     }
 
     public Coord getCoord ()

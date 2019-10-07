@@ -9,13 +9,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
+
+import com.example.umborno.ui.MainActivity;
 
 public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
     private static final String TAG = "LUBroadcastReceiver";
@@ -44,7 +44,7 @@ public class LocationUpdatesBroadcastReceiver extends BroadcastReceiver {
 
     private void sendNotification(Context context, String notificationDetails){
         Log.d(TAG, "sendNotification: ");
-        Intent notifIntent = new Intent(context,MainActivity.class);
+        Intent notifIntent = new Intent(context, MainActivity.class);
         notifIntent.putExtra("from_noti",true);
         TaskStackBuilder taskStackBuilder = TaskStackBuilder.create(context);
         /*

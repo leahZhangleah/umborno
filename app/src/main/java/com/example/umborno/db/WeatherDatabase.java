@@ -8,8 +8,9 @@ import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
 import com.example.umborno.model.CurrentWeather;
+import com.example.umborno.model.Reminder;
 
-@Database(entities = {CurrentWeather.class} ,version = 1,exportSchema = false)
+@Database(entities = {CurrentWeather.class, Reminder.class} ,version = 1,exportSchema = false)
 public abstract class WeatherDatabase extends RoomDatabase {
     public abstract WeatherDao getWeatherDao();
 }

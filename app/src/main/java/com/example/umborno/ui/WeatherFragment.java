@@ -1,4 +1,4 @@
-package com.example.umborno;
+package com.example.umborno.ui;
 
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,33 +20,37 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.example.umborno.WeatherViewModel;
+import com.example.umborno.util.LocationHelper;
+import com.example.umborno.util.LocationResultHandler;
+import com.example.umborno.util.PermissionHelper;
+import com.example.umborno.R;
+import com.example.umborno.WeatherViewModelProviderFactory;
 import com.example.umborno.http.Resource;
 import com.example.umborno.http.Status;
 import com.example.umborno.model.CurrentWeather;
 import com.example.umborno.util.Utilities;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
 
+import java.util.Locale;
+
 import javax.inject.Inject;
 
-import dagger.android.AndroidInjection;
-import dagger.android.AndroidInjector;
-import dagger.android.DispatchingAndroidInjector;
-import dagger.android.HasFragmentInjector;
 import dagger.android.support.AndroidSupportInjection;
-import dagger.android.support.HasSupportFragmentInjector;
 
-public class WeatherFragment extends Fragment implements View.OnClickListener,SwipeRefreshLayout.OnRefreshListener{
+public class WeatherFragment extends Fragment implements View.OnClickListener,SwipeRefreshLayout.OnRefreshListener, LocationResultHandler {
     private static final String TAG = "WeatherFragment";
-    NavController navController = null;
+    NavController navController;
     private TextView longitudeValue, latitudeValue;
     private Button checkDetails;
     private SwipeRefreshLayout swipeRefreshLayout;
     @Inject
-    WeatherViewModelProviderFactory factory;
+    public WeatherViewModelProviderFactory factory;
     private WeatherViewModel weatherViewModel;
-    private boolean isLoading = true;
+    private boolean isLoading;
     @Inject
     public FusedLocationProviderClient fusedLocationProviderClient;
     @Inject
@@ -57,9 +62,22 @@ public class WeatherFragment extends Fragment implements View.OnClickListener,Sw
         @Override
         public void onLocationResult(LocationResult locationResult) {
             super.onLocationResult(locationResult);
+            if(isLoading) return;
             Location location = locationResult.getLastLocation();
             Log.d(TAG, "onLocationRetrieved: "+ location.getLongitude() + " "+location.getLatitude());
+            longitudeValue.setText(String.format(Locale.CHINA,"lon: %f",location.getLongitude()));
+            latitudeValue.setText(String.format(Locale.CHINA,"lon: %f",location.getLatitude()));
             weatherViewModel.setLocMutableLiveData(location.getLongitude(),location.getLatitude());
+        }
+
+        @Override
+        public void onLocationAvailability(LocationAvailability locationAvailability) {
+            super.onLocationAvailability(locationAvailability);
+            if(locationAvailability.isLocationAvailable()){
+                Log.d(TAG, "onLocationAvailability: true");
+            }else{
+                Log.d(TAG, "onLocationAvailability: false");
+            }
         }
     };
 
@@ -68,6 +86,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener,Sw
     public void onCreate(@Nullable Bundle savedInstanceState) {
         AndroidSupportInjection.inject(this);
         super.onCreate(savedInstanceState);
+        checkGpsEnabled();
     }
 
     @Override
@@ -79,7 +98,6 @@ public class WeatherFragment extends Fragment implements View.OnClickListener,Sw
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(view);
         view.findViewById(R.id.check_details).setOnClickListener(this);
@@ -96,13 +114,15 @@ public class WeatherFragment extends Fragment implements View.OnClickListener,Sw
                     isLoading = false;
                     swipeRefreshLayout.setRefreshing(isLoading);
                 }
+                Toast.makeText(getContext(),"status: "+currentWeatherResource.getStatus()+"msg: "+currentWeatherResource.getMsg()+
+                        "data: "+currentWeatherResource.getData(),Toast.LENGTH_LONG).show();
                 Log.d(TAG, "resource status: "+currentWeatherResource.getStatus());
                 Log.d(TAG, "resource msg: "+currentWeatherResource.getMsg());
                 Log.d(TAG, "weather name: "+currentWeatherResource.getData());
             }
         });
 
-        checkGpsEnabled();
+
     }
 
 
@@ -117,6 +137,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener,Sw
     private void checkLocationPermission(){
         String permission = PermissionHelper.PERMISSION_ACCESS_FINE_LOCATION;
         if(permissionHelper.checkIfPermissionGranted(permission)){
+            isLoading = true;
             startLocationUpdates();
         }else{
             String rationalMsg =getString(R.string.rational_msg);
@@ -126,7 +147,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener,Sw
 
     private void startLocationUpdates(){
         if(locationHelper==null){
-            locationHelper = LocationHelper.instance(this,locationCallback,fusedLocationProviderClient);
+            locationHelper = LocationHelper.instance(this,locationCallback,fusedLocationProviderClient,this);
         }else{
             locationHelper.requestCurrentLocation();
         }
@@ -134,7 +155,11 @@ public class WeatherFragment extends Fragment implements View.OnClickListener,Sw
 
     @Override
     public void onRefresh() {
-        if(isLoading) return;
+        if(isLoading){
+            Toast.makeText(getContext(),"Data is loading",Toast.LENGTH_SHORT).show();
+            swipeRefreshLayout.setRefreshing(false);
+            return;
+        }
         Log.d(TAG, "onRefresh: ");
         checkGpsEnabled();
     }
@@ -159,5 +184,13 @@ public class WeatherFragment extends Fragment implements View.OnClickListener,Sw
                     Log.d(TAG, "onRequestPermissionsResult: not granted");
                 }
         }
+    }
+
+    @Override
+    public void onLocationRetrieved(Location location) {
+        Log.d(TAG, "onLocationRetrieved from last location: "+location.getLatitude() + " "+location.getLongitude());
+        longitudeValue.setText(String.format(Locale.CHINA,"lon: %f",location.getLongitude()));
+        latitudeValue.setText(String.format(Locale.CHINA,"lon: %f",location.getLatitude()));
+        weatherViewModel.setLocMutableLiveData(location.getLongitude(),location.getLatitude());
     }
 }

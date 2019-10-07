@@ -3,7 +3,9 @@ package com.example.umborno.db;
 import androidx.lifecycle.LiveData;
 
 import com.example.umborno.model.CurrentWeather;
+import com.example.umborno.model.Reminder;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -31,4 +33,26 @@ public class LocalDataSource {
     public LiveData<CurrentWeather> getCurrentWeather(){
         return weatherDao.getCurrentWeather();
     }
+
+
+    public List<Reminder> getReminders(){
+        return weatherDao.getReminders();
+    }
+
+    public void addReminder(Reminder reminder){
+        weatherDao.save(reminder);
+    }
+
+    /*public void updateReminder(Reminder reminder){
+        weatherDao.update(reminder);
+    }
+
+    public void deleteReminder(Reminder reminder){
+        weatherDao.delete(reminder);
+    }
+
+    public void deleteAllReminders(){
+        weatherDao.deleteAllReminders();
+    }*/
+
 }

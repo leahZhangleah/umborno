@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.example.umborno.Loc;
 import com.example.umborno.http.Resource;
 import com.example.umborno.http.WeatherRepository;
 import com.example.umborno.model.CurrentWeather;
@@ -28,7 +29,7 @@ public class WeatherViewModel extends ViewModel {
         currentWeatherLiveData = Transformations.switchMap(locMutableLiveData, new Function<Loc, LiveData<Resource<CurrentWeather>>>() {
             @Override
             public LiveData<Resource<CurrentWeather>> apply(Loc location) {
-                return weatherRepository.requestCurrentWeather(location.longitude, location.latitude);
+                return weatherRepository.requestCurrentWeather(location.getLongitude(), location.getLatitude());
             }
         });
     }
