@@ -1,6 +1,8 @@
 package com.example.umborno.di;
 
+import com.example.umborno.ui.AddReminderFragment;
 import com.example.umborno.ui.ReminderFragment;
+import com.example.umborno.ui.SearchFragment;
 import com.example.umborno.ui.WeatherFragment;
 
 import dagger.Module;
@@ -17,5 +19,12 @@ public abstract class MainActivityModule {
 
     @ContributesAndroidInjector()
     abstract ReminderFragment contributeReminderFragment();
+
+    @ContributesAndroidInjector()
+    abstract AddReminderFragment bindAddReminderFragment();
+
+    @ContributesAndroidInjector
+    abstract SearchFragment contributeSearchFragment();
+
 
 }

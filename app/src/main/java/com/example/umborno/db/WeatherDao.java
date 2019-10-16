@@ -2,16 +2,17 @@ package com.example.umborno.db;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
-import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
-import androidx.room.Update;
 
-import com.example.umborno.model.Coord;
-import com.example.umborno.model.CurrentWeather;
 import com.example.umborno.model.Reminder;
+import com.example.umborno.model.current_weather_model.CurrentWeather;
+import com.example.umborno.model.location_key_model.LocationKey;
 
 import java.util.List;
+
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 
 import static androidx.room.OnConflictStrategy.REPLACE;
 
@@ -20,8 +21,8 @@ public interface WeatherDao {
     @Insert(onConflict = REPLACE)
     public void save(CurrentWeather currentWeather);
 
-    @Query("select * from currentweather")
-    public LiveData<CurrentWeather> getCurrentWeather();
+    @Query("SELECT * FROM currentweather WHERE `key`=:locationKey")
+    public Maybe<List<CurrentWeather>> getCurrentWeather(String locationKey);
 
     @Insert(onConflict = REPLACE)
     public void save(Reminder reminder);
@@ -38,4 +39,10 @@ public interface WeatherDao {
     @Delete
     public void deleteAllReminders();
 */
+    //todo
+    @Query("select * from locationkey")
+    public Maybe<LocationKey> getLocationKey();
+
+    @Insert(onConflict = REPLACE)
+    public void save(LocationKey locationKey);
 }

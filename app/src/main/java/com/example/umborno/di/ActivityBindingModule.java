@@ -4,6 +4,7 @@ import com.example.umborno.ui.MainActivity;
 
 import javax.inject.Singleton;
 
+import dagger.Binds;
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
 
@@ -23,5 +24,6 @@ public abstract class ActivityBindingModule {
     //todo: if we have second activity
 /*    @ContributesAndroidInjector(modules=SecondActivityModule.class)
       abstract SecondActivity contributeSecondActivity();*/
+
 
 }

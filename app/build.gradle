@@ -13,13 +13,19 @@ android {
     buildTypes {
         release {
             buildConfigField "String", "API_KEY", "\"a4bee604b2ebdeba98d1f9ff77faf245\""
+            buildConfigField "String","ACCU_API_KEY","\"MWbZWE2Z9aG34U8WVuIcPuR6aVbY9HFA\""
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
             buildConfigField "String", "API_KEY", "\"a4bee604b2ebdeba98d1f9ff77faf245\""
+            buildConfigField "String","ACCU_API_KEY","\"MWbZWE2Z9aG34U8WVuIcPuR6aVbY9HFA\""
         }
 
+    }
+    compileOptions{
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -50,6 +56,7 @@ dependencies {
     //Room
     implementation 'androidx.room:room-runtime:2.0.0'
     annotationProcessor 'androidx.room:room-compiler:2.0.0'
+    implementation 'android.arch.persistence.room:rxjava2:1.1.1'
 
     //Dagger2
     implementation 'com.google.dagger:dagger-android:2.22'
@@ -69,7 +76,26 @@ dependencies {
     implementation 'android.arch.lifecycle:extensions:2.1.0'
     annotationProcessor "androidx.lifecycle:lifecycle-compiler:2.1.0"
 
+    //reactivestreams
+    implementation "androidx.lifecycle:lifecycle-reactivestreams:2.1.0"
+
     //fusedLocationProviderClient
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'com.google.android.gms:play-services-location:16.0.0'
+
+    //rxjava
+    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.2.13'
+        implementation 'com.squareup.retrofit2:adapter-rxjava2:2.2.0'
+
+    //gms-place
+    //implementation 'com.google.android.libraries.places:places:2.0.0'
+
+
+    //gaode map
+    //implementation 'com.amap.api:search:latest.integration'
+
+
+    //tomtom
+    //implementation("com.tomtom.online:sdk-search:2.4287")
 }

@@ -17,10 +17,10 @@ public class LiveDataCallAdapterFactory extends CallAdapter.Factory {
     public CallAdapter<?, ?> get(@NonNull Type returnType, @NonNull Annotation[] annotations, @NonNull Retrofit retrofit) {
         if(getRawType(returnType)!= LiveData.class) return null;
         Type observableType = getParameterUpperBound(0, (ParameterizedType) returnType);
-        Class<?> rawObservableType = getRawType(observableType);
+        /*Class<?> rawObservableType = getRawType(observableType);
         if(rawObservableType!=ApiResponse.class){
             throw new IllegalArgumentException("type must be a resource");
-        }
+        }*/
 
         if(!(observableType instanceof ParameterizedType)){
             throw new IllegalArgumentException("resources must be parameterized");

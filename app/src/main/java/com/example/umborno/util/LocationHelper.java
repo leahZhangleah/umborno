@@ -33,6 +33,7 @@ public class LocationHelper implements LifecycleObserver {
     private LocationCallback locationCallback;
     private LocationResultHandler resultHandler;
     private boolean isRequestingLocationUpdates;
+    private Location currentLocation;
 
     private LocationHelper(LifecycleOwner lifecycleOwner,LocationCallback locationCallback,
                            FusedLocationProviderClient fusedLocationProviderClient,LocationResultHandler resultHandler) {
@@ -60,7 +61,7 @@ public class LocationHelper implements LifecycleObserver {
         return locationRequest;
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
     public void requestCurrentLocation(){
         Log.d(TAG, "requestCurrentLocation: ");
         getLocation();
@@ -75,17 +76,12 @@ public class LocationHelper implements LifecycleObserver {
                         @Override
                         public void onComplete(@NonNull Task<Location> task) {
                             if(task.isSuccessful() && task.getResult()!=null){
-                                Location location = task.getResult();
+                                currentLocation = task.getResult();
                                 //Intent intent = getIntent();
                                 //intent.putExtra(LocationUpdatesBroadcastReceiver.LON_KEY,location.getLongitude());
                                 //intent.putExtra(LocationUpdatesBroadcastReceiver.LAT_KEY,location.getLatitude());
                                 //context.sendBroadcast(intent);
-                                resultHandler.onLocationRetrieved(location);
-                                if(!isRequestingLocationUpdates){
-                                    Log.d(TAG, "onComplete: request location updates");
-                                    fusedLocationProviderClient.requestLocationUpdates(createLocationSetting(),locationCallback,null);
-                                    isRequestingLocationUpdates = true;
-                                }
+                                resultHandler.onLocationRetrieved(currentLocation);
                             }
                         }
                     })
@@ -101,6 +97,16 @@ public class LocationHelper implements LifecycleObserver {
         }
 
 
+    }
+
+    @SuppressLint("MissingPermission")
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    public void requestLocationUpdates(){
+        if(!isRequestingLocationUpdates&&fusedLocationProviderClient!=null){
+            Log.d(TAG, "onComplete: request location updates");
+            fusedLocationProviderClient.requestLocationUpdates(createLocationSetting(),locationCallback,null);
+            isRequestingLocationUpdates = true;
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)

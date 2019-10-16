@@ -3,9 +3,8 @@ package com.example.umborno.http;
 
 import androidx.lifecycle.LiveData;
 
-import com.example.umborno.model.CurrentWeather;
+import com.example.umborno.model.current_weather_model.CurrentWeather;
 
-import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 

@@ -13,6 +13,14 @@ public class Reminder {
     private String repeat;
     private String alert;
 
+    public Reminder(String description, String dateTime, String location, String repeat, String alert) {
+        this.description = description;
+        this.dateTime = dateTime;
+        this.location = location;
+        this.repeat = repeat;
+        this.alert = alert;
+    }
+
     public int getId() {
         return id;
     }

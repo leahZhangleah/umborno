@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ArrayTypeConverter {
 
-    @TypeConverter
+   /* @TypeConverter
     public String arrToString(Weather[] arr){
         Gson gson = new Gson();
         String json = gson.toJson(arr);
@@ -21,5 +21,5 @@ public class ArrayTypeConverter {
     public Weather[] stringToArr(String json){
         Type arrType = new TypeToken<Weather[]>(){}.getType();
         return new Gson().fromJson(json,arrType);
-    }
+    }*/
 }

@@ -2,6 +2,8 @@ package com.example.umborno.di;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 import androidx.room.Room;
 
@@ -40,6 +42,19 @@ public class AppModule {
     Context provideContext(Application application){
         return application;
     }
+
+    @Provides
+    @Singleton
+    SharedPreferences.Editor provideSharedPreferencesEditor(Application context){
+        return PreferenceManager.getDefaultSharedPreferences(context).edit();
+    }
+
+    @Provides
+    @Singleton
+    SharedPreferences provideSharedPreferences(Application context){
+        return PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
 
 
 }

@@ -1,19 +1,30 @@
 package com.example.umborno.db;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 
-import com.example.umborno.model.CurrentWeather;
 import com.example.umborno.model.Reminder;
+import com.example.umborno.model.current_weather_model.CurrentWeather;
+import com.example.umborno.model.location_key_model.LocationKey;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-public class LocalDataSource {
+import io.reactivex.Flowable;
+import io.reactivex.Maybe;
 
+public class LocalDataSource {
+    private static final String TAG = "LocalDataSource";
     private final WeatherDao weatherDao;
-    public static final long EXPIRATION_INTERVAL = TimeUnit.MINUTES.toMillis(30); // 30 minutes
+    public static final long EXPIRATION_INTERVAL = TimeUnit.HOURS.toMillis(2); // 2 HOURS
 
     @Inject
     public LocalDataSource(WeatherDao weatherDao) {
@@ -25,13 +36,22 @@ public class LocalDataSource {
     }
 
     public boolean shouldFetch(CurrentWeather currentWeather){
-        long fetchedTime = Long.valueOf(currentWeather.getDt());
-        long currentTime = System.currentTimeMillis();
-        return (currentTime - fetchedTime) >= EXPIRATION_INTERVAL;
+        long fetchedTime = currentWeather.getEpochTime(); // granuality to tens of milliseconds
+        long currentTime = System.currentTimeMillis() / 1000L;
+        long time_difference = currentTime - fetchedTime;
+        Log.d(TAG, "current time "+currentTime);
+        if(time_difference >=EXPIRATION_INTERVAL){
+            Log.d(TAG, "shouldFetch: true. the time difference is "+time_difference);
+            return true;
+        }else{
+            Log.d(TAG, "shouldFetch: false. the time difference is "+time_difference);
+            return false;
+        }
+
     }
 
-    public LiveData<CurrentWeather> getCurrentWeather(){
-        return weatherDao.getCurrentWeather();
+    public Maybe<List<CurrentWeather>> getCurrentWeather(String key){
+        return weatherDao.getCurrentWeather(key);
     }
 
 
@@ -41,6 +61,14 @@ public class LocalDataSource {
 
     public void addReminder(Reminder reminder){
         weatherDao.save(reminder);
+    }
+
+    public void save(LocationKey locationKey){
+        weatherDao.save(locationKey);
+    }
+
+    public Maybe<LocationKey> getLocationKey(){
+        return weatherDao.getLocationKey();
     }
 
     /*public void updateReminder(Reminder reminder){
