@@ -9,6 +9,7 @@
     android:layout_marginTop="@dimen/header_margin_top">
 
     <EditText
+        android:id="@+id/new_reminder_description"
         android:padding="@dimen/layout_padding"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

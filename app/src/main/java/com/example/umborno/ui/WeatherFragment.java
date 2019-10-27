@@ -193,6 +193,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener,Sw
 
     @Override
     public void onClick(View v) {
+        Log.d(TAG, "onClick: "+navController.getGraph().getNavigatorName());
         navController.navigate(R.id.action_weatherFragment_to_detailFragment);
     }
 

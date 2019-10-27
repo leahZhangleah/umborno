@@ -6,8 +6,11 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavAction;
 import androidx.navigation.NavController;
+import androidx.navigation.NavHost;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 
 import android.os.Bundle;
@@ -60,11 +63,11 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigationView);
         navController = Navigation.findNavController(this,R.id.nav_host_fragment);
+        Log.d(TAG, "setupNavigation: "+navController.getGraph().getNavigatorName());
 
         NavigationUI.setupActionBarWithNavController(this,navController,drawerLayout);
         NavigationUI.setupWithNavController(navigationView,navController);
         navigationView.setNavigationItemSelectedListener(this);
-
 
     }
 
@@ -75,11 +78,13 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
    @Override
     public boolean onSupportNavigateUp() {
+       Log.d(TAG, "onSupportNavigateUp: ");
         return NavigationUI.navigateUp(Navigation.findNavController(this,R.id.nav_host_fragment),drawerLayout);
     }
 
     @Override
     public void onBackPressed() {
+        Log.d(TAG, "onBackPressed: ");
         if(drawerLayout.isDrawerOpen(GravityCompat.START)){
             drawerLayout.closeDrawer(GravityCompat.START);
         }else{
@@ -97,7 +102,9 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
                 navController.navigate(R.id.weatherFragment);
                 break;
             case R.id.reminder:
-                navController.navigate(R.id.reminderFragment);
+                navController.navigate(R.id.reminder_graph);
+                //Navigation.findNavController(this,R.id.reminderFragment);
+                //navController.navigate(R.id.reminderFragment);
                 break;
             case R.id.more_cities:
                 navController.navigate(R.id.addCityFragment);

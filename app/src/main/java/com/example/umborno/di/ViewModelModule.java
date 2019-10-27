@@ -32,5 +32,5 @@ public abstract class ViewModelModule {
     @Binds
     @IntoMap
     @ViewModelKey(SearchLocationViewModel.class)
-    abstract  ViewModel bindSearchLocationViewModel(SearchLocationViewModel searchLocationViewModel);
+    abstract ViewModel bindSearchLocationViewModel(SearchLocationViewModel searchLocationViewModel);
 }

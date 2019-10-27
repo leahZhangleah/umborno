@@ -103,6 +103,7 @@ public class ReminderFragment extends Fragment{
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Log.d(TAG, "onOptionsItemSelected: "+navController.getGraph().getNavigatorName());
         if(item.getItemId()==R.id.add_reminder_btn){
             navController.navigate(R.id.action_reminderFragment_to_addReminderFragment);
             return true;

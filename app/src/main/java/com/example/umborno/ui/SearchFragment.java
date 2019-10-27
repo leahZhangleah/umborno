@@ -11,6 +11,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -57,6 +59,7 @@ public class SearchFragment extends Fragment implements TextWatcher {
     private EditText searchEt;
     private ListView locationSuggestionsLv;
     private List<String> suggestionsList;
+    private NavController navController;
     @Inject
     public WeatherViewModelProviderFactory factory;
     private SearchLocationViewModel searchLocationViewModel;
@@ -84,6 +87,7 @@ public class SearchFragment extends Fragment implements TextWatcher {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        navController = Navigation.findNavController(view);
         cancelBtn = view.findViewById(R.id.cancel_btn);
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,7 +96,8 @@ public class SearchFragment extends Fragment implements TextWatcher {
                 String current_location = "Current Location";
                 locationViewModel.setSelectedLocation(current_location);
                 //close fragment
-                //getFragmentManager().popBackStack();
+                navController.popBackStack();
+
             }
         });
 
@@ -105,6 +110,8 @@ public class SearchFragment extends Fragment implements TextWatcher {
                 Toast.makeText(getContext(),"position at: "+position +" "+ suggestionsList.get(position)+" is selected",Toast.LENGTH_SHORT).show();
                 locationViewModel.setSelectedLocation(selectedLocation);
                 //getFragmentManager().popBackStack();
+                navController.popBackStack();
+
             }
         });
 

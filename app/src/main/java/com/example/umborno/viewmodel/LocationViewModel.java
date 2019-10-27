@@ -8,7 +8,6 @@ import javax.inject.Inject;
 public class LocationViewModel extends ViewModel {
     private MutableLiveData<String> selectedLocation;
 
-    @Inject
     public LocationViewModel() {
         this.selectedLocation = new MutableLiveData<>();
         selectedLocation.postValue("");

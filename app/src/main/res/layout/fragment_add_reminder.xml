@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.AddReminderFragment"
-    android:orientation="vertical">
+    tools:context=".ui.AddReminderFragment">
 
-
-    <include layout="@layout/reminder_header_layout"/>
-
-    <include layout="@layout/reminder_middle_layout"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/middle_margin_top"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <include layout="@layout/reminder_header_layout"/>
 
+        <include layout="@layout/reminder_middle_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/middle_margin_top"/>
+    </LinearLayout>
 
-</LinearLayout>
+</ScrollView>
