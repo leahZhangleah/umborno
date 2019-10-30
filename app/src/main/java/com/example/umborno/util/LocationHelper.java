@@ -75,6 +75,7 @@ public class LocationHelper implements LifecycleObserver {
                     .addOnCompleteListener(new OnCompleteListener<Location>() {
                         @Override
                         public void onComplete(@NonNull Task<Location> task) {
+                            //todo when debugging this returns false
                             if(task.isSuccessful() && task.getResult()!=null){
                                 currentLocation = task.getResult();
                                 //Intent intent = getIntent();

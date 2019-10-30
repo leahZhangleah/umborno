@@ -11,11 +11,14 @@ import androidx.navigation.NavController;
 import androidx.navigation.NavHost;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
+import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.FrameLayout;
 
 import com.example.umborno.LocationService;
 import com.example.umborno.R;
@@ -39,7 +42,8 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
     public Toolbar toolbar;
     public DrawerLayout drawerLayout;
     public NavigationView navigationView;
-    public NavController navController;
+    private NavController navController;
+    private AppBarConfiguration appBarConfiguration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,10 +66,13 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigationView);
+        appBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.weatherFragment,R.id.addCityFragment,R.id.settingsFragment,R.id.reminderActivity
+        ).setDrawerLayout(drawerLayout).build();
         navController = Navigation.findNavController(this,R.id.nav_host_fragment);
         Log.d(TAG, "setupNavigation: "+navController.getGraph().getNavigatorName());
 
-        NavigationUI.setupActionBarWithNavController(this,navController,drawerLayout);
+        NavigationUI.setupActionBarWithNavController(this,navController,appBarConfiguration);
         NavigationUI.setupWithNavController(navigationView,navController);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -76,13 +83,13 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         return dispatchingAndroidInjector;
     }
 
-   @Override
+    @Override
     public boolean onSupportNavigateUp() {
        Log.d(TAG, "onSupportNavigateUp: ");
-        return NavigationUI.navigateUp(Navigation.findNavController(this,R.id.nav_host_fragment),drawerLayout);
+        return NavigationUI.navigateUp(navController,appBarConfiguration) || super.onSupportNavigateUp();
     }
 
-    @Override
+   @Override
     public void onBackPressed() {
         Log.d(TAG, "onBackPressed: ");
         if(drawerLayout.isDrawerOpen(GravityCompat.START)){
@@ -102,12 +109,13 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
                 navController.navigate(R.id.weatherFragment);
                 break;
             case R.id.reminder:
-                navController.navigate(R.id.reminder_graph);
+                navController.navigate(R.id.reminderActivity);
                 //Navigation.findNavController(this,R.id.reminderFragment);
                 //navController.navigate(R.id.reminderFragment);
                 break;
             case R.id.more_cities:
-                navController.navigate(R.id.addCityFragment);
+                navController.navigate(Uri.parse("umborno://add_city"));
+                //navController.navigate(R.id.addCityFragment);
                 break;
             case R.id.settings:
                 navController.navigate(R.id.settingsFragment);

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import androidx.lifecycle.ViewModelProvider;
 import androidx.room.Room;
 
 import com.example.umborno.db.LocalDataSource;
@@ -17,6 +18,7 @@ import com.example.umborno.http.LiveDataCallAdapterFactory;
 import com.example.umborno.http.RemoteDataSource;
 import com.example.umborno.http.RequestInterceptor;
 import com.example.umborno.http.WeatherRepository;
+import com.example.umborno.viewmodel.WeatherViewModelProviderFactory;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
@@ -26,6 +28,7 @@ import java.io.File;
 
 import javax.inject.Singleton;
 
+import dagger.Binds;
 import dagger.Module;
 import dagger.Provides;
 import okhttp3.Cache;
@@ -54,8 +57,6 @@ public class AppModule {
     SharedPreferences provideSharedPreferences(Application context){
         return PreferenceManager.getDefaultSharedPreferences(context);
     }
-
-
 
 }
 

@@ -2,23 +2,15 @@ package com.example.umborno.db;
 
 import android.util.Log;
 
-import androidx.lifecycle.LiveData;
-
-import com.example.umborno.model.Reminder;
+import com.example.umborno.model.reminder_model.Reminder;
 import com.example.umborno.model.current_weather_model.CurrentWeather;
 import com.example.umborno.model.location_key_model.LocationKey;
 
-import java.sql.Timestamp;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 
 public class LocalDataSource {

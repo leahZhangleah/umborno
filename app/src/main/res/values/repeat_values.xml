@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="repeat_options">
+        <item>Never</item>
+        <item>Every Day</item>
+        <item>Every Week</item>
+        <item>Every 2 Weeks</item>
+        <item>Every Month</item>
+        <item>Every Year</item>
+    </string-array>
+
+    <string-array name="alert_options">
+        <item>None</item>
+        <item>At time of event</item>
+        <item>5 minutes before</item>
+        <item>15 minutes before</item>
+        <item>30 minutes before</item>
+        <item>1 hour before</item>
+        <item>2 hour before</item>
+        <item>1 day before</item>
+    </string-array>
+</resources>

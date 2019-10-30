@@ -3,7 +3,7 @@ package com.example.umborno.db;
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
 
-import com.example.umborno.model.Reminder;
+import com.example.umborno.model.reminder_model.Reminder;
 import com.example.umborno.model.current_weather_model.CurrentWeather;
 import com.example.umborno.model.location_key_model.LocationKey;
 

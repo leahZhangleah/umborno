@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.umborno.db.LocalDataSource;
-import com.example.umborno.model.Reminder;
+import com.example.umborno.model.reminder_model.Reminder;
 
 import java.util.List;
 

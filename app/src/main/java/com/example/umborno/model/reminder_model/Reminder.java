@@ -1,25 +1,23 @@
-package com.example.umborno.model;
+package com.example.umborno.model.reminder_model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 @Entity
-public class Reminder {
+public class Reminder{
     @PrimaryKey(autoGenerate = true)
     private int id;
     private String description;
-    private String dateTime;
+    @Embedded
+    private ReminderDate dateTime;
     private String location;
     private String repeat;
     private String alert;
 
-    public Reminder(String description, String dateTime, String location, String repeat, String alert) {
-        this.description = description;
-        this.dateTime = dateTime;
-        this.location = location;
-        this.repeat = repeat;
-        this.alert = alert;
-    }
 
     public int getId() {
         return id;
@@ -37,11 +35,11 @@ public class Reminder {
         this.description = description;
     }
 
-    public String getDateTime() {
+    public ReminderDate getDateTime() {
         return dateTime;
     }
 
-    public void setDateTime(String dateTime) {
+    public void setDateTime(ReminderDate dateTime) {
         this.dateTime = dateTime;
     }
 
@@ -68,4 +66,6 @@ public class Reminder {
     public void setAlert(String alert) {
         this.alert = alert;
     }
+
+
 }

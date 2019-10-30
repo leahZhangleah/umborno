@@ -26,16 +26,13 @@ import com.example.umborno.viewmodel.ReminderViewModel;
 import com.example.umborno.viewmodel.WeatherViewModelProviderFactory;
 import com.example.umborno.http.Resource;
 import com.example.umborno.http.Status;
-import com.example.umborno.model.Reminder;
+import com.example.umborno.model.reminder_model.Reminder;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
-import dagger.android.AndroidInjector;
-import dagger.android.DispatchingAndroidInjector;
 import dagger.android.support.AndroidSupportInjection;
-import dagger.android.support.HasSupportFragmentInjector;
 
 
 /**

@@ -5,8 +5,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.umborno.http.ReminderRepository;
 import com.example.umborno.http.Resource;
-import com.example.umborno.http.WeatherRepository;
-import com.example.umborno.model.Reminder;
+import com.example.umborno.model.reminder_model.Reminder;
 
 import java.util.List;
 

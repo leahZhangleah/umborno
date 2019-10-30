@@ -67,6 +67,27 @@
         android:timePickerMode="spinner">
     </TimePicker>
     <RelativeLayout
+        android:id="@+id/repeat_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/date_time_state_bg"
+        android:padding="@dimen/layout_padding">
+        <TextView
+            android:textSize="@dimen/text_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Repeat"
+            android:layout_alignParentLeft="true"/>
+        <TextView
+            android:id="@+id/new_reminder_repeat"
+            android:textSize="@dimen/text_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:drawableRight="@drawable/ic_chevron_right_black_24dp"
+            tools:text="None"/>
+    </RelativeLayout>
+    <RelativeLayout
         android:id="@+id/alert_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -84,6 +105,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
+            android:drawableRight="@drawable/ic_chevron_right_black_24dp"
             tools:text="None"/>
     </RelativeLayout>
 </LinearLayout>

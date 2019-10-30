@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.umborno.R;
-import com.example.umborno.model.Reminder;
+import com.example.umborno.model.reminder_model.Reminder;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,17 +1,15 @@
 package com.example.umborno.db;
 
-import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 
-import com.example.umborno.model.Reminder;
+import com.example.umborno.model.reminder_model.Reminder;
 import com.example.umborno.model.current_weather_model.CurrentWeather;
 import com.example.umborno.model.location_key_model.LocationKey;
 
 import java.util.List;
 
-import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 
 import static androidx.room.OnConflictStrategy.REPLACE;

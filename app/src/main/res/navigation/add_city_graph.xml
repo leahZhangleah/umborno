@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/add_city_graph"
+    app:startDestination="@id/addCityFragment">
+    <fragment
+        android:id="@+id/addCityFragment"
+        android:name="com.example.umborno.ui.AddCityFragment"
+        android:label="Add a new city"
+        tools:layout="@layout/fragment_add_city" />
+    <deepLink
+        android:id="@+id/deepLink"
+        app:uri="umborno://add_city" />
+</navigation>

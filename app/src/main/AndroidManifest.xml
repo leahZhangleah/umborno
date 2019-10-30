@@ -1,16 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.umborno">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.INTERNET"/>
-
-    <!--uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /-->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name=".UmbrellaApp"
@@ -19,29 +18,23 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <!--api key for gaode map-->
-        <!--meta-data
-            android:name="com.amap.api.v2.apikey"
-            android:value="bf9f725b62994c5cdaaf81e1ad2ef552"/-->
-        <!--api key for tomtom map-->
-        <!--meta-data
-            android:name="OnlineSearch.key"
-            android:value="EAAq6GDWlvZI0MRlRxBPRmfEQAC4qpLu">
-        </meta-data-->
-        <service android:name=".schedule.MyJobService"
-            android:permission="android.permission.BIND_JOB_SERVICE">
-        </service>
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".ui.ReminderActivity" />
+
+        <service
+            android:name=".schedule.MyJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
         <service
             android:name=".LocationService"
             android:enabled="true"
-            android:exported="true">
-        </service>
+            android:exported="true" />
         <service
             android:name=".LocationUpdatesIntentService"
             android:exported="false" />
 
-        <activity android:name=".ui.MainActivity"
+        <activity
+            android:name=".ui.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

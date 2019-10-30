@@ -20,40 +20,16 @@
         android:label="Weather Detail"
         tools:layout="@layout/fragment_detail" />
     <fragment
-        android:id="@+id/addCityFragment"
-        android:name="com.example.umborno.ui.AddCityFragment"
-        android:label="Add a new city"
-        tools:layout="@layout/fragment_add_city" />
-    <fragment
         android:id="@+id/settingsFragment"
         android:name="com.example.umborno.ui.SettingsFragment"
         android:label="Settings"
         tools:layout="@layout/fragment_settings" />
-    <navigation android:id="@+id/reminder_graph"
-        app:startDestination="@id/reminderFragment">
-        <fragment
-            android:id="@+id/reminderFragment"
-            android:name="com.example.umborno.ui.ReminderFragment"
-            android:label="Reminders"
-            tools:layout="@layout/fragment_reminder">
-            <action
-                android:id="@+id/action_reminderFragment_to_addReminderFragment"
-                app:destination="@id/addReminderFragment" />
-        </fragment>
-        <fragment
-            android:id="@+id/addReminderFragment"
-            android:name="com.example.umborno.ui.AddReminderFragment"
-            android:label="Add a new reminder"
-            tools:layout="@layout/fragment_add_reminder" >
-            <action
-                android:id="@+id/action_addReminderFragment_to_searchFragment"
-                app:destination="@id/searchFragment"
-                app:popUpToInclusive="false" />
-        </fragment>
-        <fragment
-            android:id="@+id/searchFragment"
-            android:name="com.example.umborno.ui.SearchFragment"
-            android:label="Search Location"
-            tools:layout="@layout/fragment_search" />
-    </navigation>
+
+    <activity
+        android:id="@+id/reminderActivity"
+        android:name="com.example.umborno.ui.ReminderActivity"
+        android:label="activity_reminder"
+        tools:layout="@layout/activity_reminder" />
+    <include app:graph="@navigation/add_city_graph" />
+
 </navigation>

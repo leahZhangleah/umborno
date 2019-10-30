@@ -107,7 +107,6 @@ public class SearchFragment extends Fragment implements TextWatcher {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 view.setBackground(getResources().getDrawable(R.drawable.pressed_layout_bg,null));
                 String selectedLocation = suggestionsList.get(position);
-                Toast.makeText(getContext(),"position at: "+position +" "+ suggestionsList.get(position)+" is selected",Toast.LENGTH_SHORT).show();
                 locationViewModel.setSelectedLocation(selectedLocation);
                 //getFragmentManager().popBackStack();
                 navController.popBackStack();
@@ -137,23 +136,6 @@ public class SearchFragment extends Fragment implements TextWatcher {
 
             }
         });
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
     }
 
     @Override

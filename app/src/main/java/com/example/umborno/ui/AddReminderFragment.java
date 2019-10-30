@@ -8,6 +8,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
@@ -22,13 +24,12 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.example.umborno.R;
+import com.example.umborno.model.reminder_model.Reminder;
+import com.example.umborno.model.reminder_model.ReminderDate;
 import com.example.umborno.util.PreferenceHelper;
 import com.example.umborno.viewmodel.LocationViewModel;
-
-import java.text.DateFormat;
-import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import com.example.umborno.viewmodel.RepeatViewModel;
+import com.google.gson.Gson;
 
 import javax.inject.Inject;
 
@@ -37,19 +38,21 @@ import dagger.android.support.AndroidSupportInjection;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class AddReminderFragment extends Fragment{
+public class AddReminderFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "AddReminderFragment";
     private NavController navController;
-    private RelativeLayout dateLayout,timeLayout;
+    private RelativeLayout dateLayout,timeLayout,repeatLayout,alertLayout;
     private DatePicker datePicker;
     private TimePicker timePicker;
-    private String description,selectedLocation,date="",time="",alert;
     private EditText newReminderDescription;
-    private TextView newReminderLocation,newReminderDate, newReminderTime, newReminderAlert;
-    private int mYear, mMonth, mDay,mAmPm,mHour,mMinute,mDayOfWeek;
+    private TextView newReminderLocation,newReminderDate, newReminderTime, newReminderRepeat,newReminderAlert;
+    private Reminder newReminder;
+    private ReminderDate reminderDate;
 
     @Inject
     public LocationViewModel locationViewModel;
+    @Inject
+    RepeatViewModel repeatViewModel;
 
     public AddReminderFragment() {
         // Required empty public constructor
@@ -75,21 +78,17 @@ public class AddReminderFragment extends Fragment{
         //for listening to the value change of location
 
         if(savedInstanceState!=null){
-            description = savedInstanceState.getString(PreferenceHelper.NEW_REMINDER_DESCRIPTION_KEY);
-            selectedLocation = savedInstanceState.getString(PreferenceHelper.NEW_REMINDER_LOCATION_KEY);
-            mYear = savedInstanceState.getInt(PreferenceHelper.NEW_REMINDER_YEAR_KEY);
-            mMonth = savedInstanceState.getInt(PreferenceHelper.NEW_REMINDER_MONTH_KEY);
-            mDay = savedInstanceState.getInt(PreferenceHelper.NEW_REMINDER_YEAR_KEY);
-            mHour = savedInstanceState.getInt(PreferenceHelper.NEW_REMINDER_HOUR_KEY);
-            mMinute = savedInstanceState.getInt(PreferenceHelper.NEW_REMINDER_MINUTE_KEY);
-            mDayOfWeek = savedInstanceState.getInt(PreferenceHelper.NEW_REMINDER_DAY_OF_WEEK_KEY);
-            date = mYear + " "+ getMonthNameForInt(mMonth) + " "+ mDay;
-            time = mHour + ":"+mMinute;
-            alert = savedInstanceState.getString(PreferenceHelper.NEW_REMINDER_ALERT_KEY);
+            String json = savedInstanceState.getString(PreferenceHelper.NEW_REMINDER_KEY);
+            if(json!=null&&!json.isEmpty()){
+                Gson gson = new Gson();
+                newReminder = gson.fromJson(json,Reminder.class);
+                reminderDate = newReminder.getDateTime();
+            }
+        }else{
+            newReminder = new Reminder();
         }
 
         initViews(view);
-
 
     }
 
@@ -97,20 +96,120 @@ public class AddReminderFragment extends Fragment{
         newReminderDescription = view.findViewById(R.id.new_reminder_description);
         newReminderDate = view.findViewById(R.id.new_reminder_date);
         newReminderTime = view.findViewById(R.id.new_reminder_time);
+        newReminderRepeat = view.findViewById(R.id.new_reminder_repeat);
         newReminderAlert = view.findViewById(R.id.new_reminder_alert);
         newReminderLocation = view.findViewById(R.id.get_location_tv);
 
         dateLayout = view.findViewById(R.id.date_layout);
         timeLayout = view.findViewById(R.id.time_layout);
+        repeatLayout = view.findViewById(R.id.repeat_layout);
+        alertLayout = view.findViewById(R.id.alert_layout);
 
         datePicker = view.findViewById(R.id.date_picker);
         timePicker = view.findViewById(R.id.time_picker);
 
         initPickers();
+        initViewValues();
+        initClickListeners();
 
-        dateLayout.setOnClickListener(new View.OnClickListener() {
+        locationViewModel.getSelectedLocation().observe(this, new Observer<String>() {
             @Override
-            public void onClick(View v) {
+            public void onChanged(String s) {
+                newReminder.setLocation(s);
+                //selectedLocation = s;
+                newReminderLocation.setText(s);
+            }
+        });
+
+        repeatViewModel.getRepeatMode().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                newReminder.setRepeat(s);
+                newReminderRepeat.setText(s);
+            }
+        });
+
+    }
+
+    private void initClickListeners() {
+        dateLayout.setOnClickListener(this);
+
+        timeLayout.setOnClickListener(this);
+
+        newReminderLocation.setOnClickListener(this);
+
+        repeatLayout.setOnClickListener(this);
+
+        alertLayout.setOnClickListener(this);
+    }
+
+    private void initViewValues() {
+        newReminderDescription.setText(newReminder.getDescription());
+        newReminderAlert.setText(newReminder.getAlert());
+    }
+
+    private void initPickers() {
+        //todo, if this fragment is passed with an id from databse, it will get a saved reminder data
+        if(reminderDate==null){
+            reminderDate = new ReminderDate();
+        }
+        datePicker.init(reminderDate.getYear(), reminderDate.getMonth(), reminderDate.getDay(), new DatePicker.OnDateChangedListener() {
+            @Override
+            public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                reminderDate.setYear(year);
+                reminderDate.setMonth(monthOfYear);
+                reminderDate.setDay(dayOfMonth);
+                newReminderDate.setText(reminderDate.getDate());
+            }
+        });
+        newReminderDate.setText(reminderDate.getDate());
+
+        timePicker.setIs24HourView(true);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            timePicker.setHour(reminderDate.getHour());
+            timePicker.setMinute(reminderDate.getMinute());
+        }else{
+            timePicker.setCurrentHour(reminderDate.getHour());
+            timePicker.setCurrentMinute(reminderDate.getMinute());
+        }
+        timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
+            @Override
+            public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
+                reminderDate.setHour(hourOfDay);
+                reminderDate.setMinute(minute);
+                newReminderTime.setText(reminderDate.getTime());
+            }
+        });
+
+        newReminderTime.setText(reminderDate.getTime());
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        newReminder.setDescription(newReminderDescription.getText().toString());
+        newReminder.setLocation(newReminderLocation.getText().toString());
+        newReminder.setDateTime(reminderDate);
+        newReminder.setAlert(newReminderAlert.getText().toString());
+
+        Gson gson = new Gson();
+        String json = gson.toJson(newReminder);
+        outState.putString(PreferenceHelper.NEW_REMINDER_KEY,json.toString());
+    }
+
+   /* @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: ");
+        //todo, destroy locationviewmodel, redefine its scope to avoid memory leak
+        locationViewModel.setSelectedLocation("");
+        getViewModelStore().clear();
+    }*/
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.date_layout:
                 if(timePicker.getVisibility()==View.VISIBLE){
                     timePicker.setVisibility(View.GONE);
                 }
@@ -119,12 +218,8 @@ public class AddReminderFragment extends Fragment{
                 }else{
                     datePicker.setVisibility(View.GONE);
                 }
-            }
-        });
-
-        timeLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+                break;
+            case R.id.time_layout:
                 if(datePicker.getVisibility()==View.VISIBLE){
                     datePicker.setVisibility(View.GONE);
                 }
@@ -133,112 +228,16 @@ public class AddReminderFragment extends Fragment{
                 }else{
                     timePicker.setVisibility(View.GONE);
                 }
-            }
-        });
-
-        newReminderLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "onClick: "+navController.getGraph().getNavigatorName());
+                break;
+            case R.id.get_location_tv:
                 navController.navigate(R.id.action_addReminderFragment_to_searchFragment);
-            }
-        });
-
-        locationViewModel.getSelectedLocation().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                selectedLocation = s;
-                newReminderLocation.setText(selectedLocation);
-            }
-        });
-
-        setValues();
-    }
-
-    private void initPickers() {
-        Calendar mCalendar = Calendar.getInstance();
-        if(date.equals("")){
-            mYear = mCalendar.get(Calendar.YEAR);
-            mMonth = mCalendar.get(Calendar.MONTH);
-            mDay = mCalendar.get(Calendar.DAY_OF_MONTH);
-            date = mYear + " "+ getMonthNameForInt(mMonth) + " "+ mDay;
+                break;
+            case R.id.repeat_layout:
+                navController.navigate(R.id.action_addReminderFragment_to_repeatFragment);
+                break;
+            case R.id.alert_layout:
+                navController.navigate(R.id.action_addReminderFragment_to_alertFragment);
+                break;
         }
-        datePicker.init(mYear, mMonth, mDay, new DatePicker.OnDateChangedListener() {
-            @Override
-            public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                mYear = year;
-                mMonth = monthOfYear;
-                mDay = dayOfMonth;
-                date = mYear + " "+ getMonthNameForInt(mMonth) + " "+ mDay;
-                newReminderDate.setText(date);
-            }
-        });
-        newReminderDate.setText(date);
-
-        if(time.equals("")){
-            mAmPm = mCalendar.get(Calendar.AM_PM);
-            mHour = mCalendar.get(Calendar.HOUR);
-            mMinute = mCalendar.get(Calendar.MINUTE);
-            mDayOfWeek = mCalendar.get(Calendar.DAY_OF_WEEK);
-            time = getDayOfWeekNameForInt(mDayOfWeek) + " "+mHour + ":"+mMinute;
-        }
-        timePicker.setIs24HourView(true);
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            timePicker.setHour(mHour);
-            timePicker.setMinute(mMinute);
-        }else{
-            timePicker.setCurrentHour(mHour);
-            timePicker.setCurrentMinute(mMinute);
-        }
-        timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
-            @Override
-            public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
-                mHour = hourOfDay;
-                mMinute = minute;
-                time = getDayOfWeekNameForInt(mDayOfWeek) + " "+mHour + ":"+mMinute;
-                newReminderTime.setText(time);
-            }
-        });
-
-        newReminderTime.setText(time);
-    }
-
-    private String getMonthNameForInt(int m){
-        String month = "";
-        DateFormatSymbols dfs = new DateFormatSymbols();
-        String[] months = dfs.getShortMonths();
-        if(m>=0&&m<=11){
-            month = months[m];
-        }
-        return month;
-    }
-
-    private String getDayOfWeekNameForInt(int d){
-        String day = "";
-        DateFormatSymbols dfs = new DateFormatSymbols();
-        String[] daysOfWeek = dfs.getWeekdays();
-        if(d>=1&&d<=7){
-            day = daysOfWeek[d];
-        }
-        return day;
-    }
-
-    private void setValues() {
-        newReminderDescription.setText(description);
-        newReminderAlert.setText(alert);
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putString(PreferenceHelper.NEW_REMINDER_DESCRIPTION_KEY,description);
-        outState.putString(PreferenceHelper.NEW_REMINDER_LOCATION_KEY,selectedLocation);
-        outState.putInt(PreferenceHelper.NEW_REMINDER_YEAR_KEY,mYear);
-        outState.putInt(PreferenceHelper.NEW_REMINDER_MONTH_KEY,mMonth);
-        outState.putInt(PreferenceHelper.NEW_REMINDER_DAY_KEY,mDay);
-        outState.putInt(PreferenceHelper.NEW_REMINDER_HOUR_KEY,mHour);
-        outState.putInt(PreferenceHelper.NEW_REMINDER_MINUTE_KEY,mMinute);
-        outState.putInt(PreferenceHelper.NEW_REMINDER_DAY_OF_WEEK_KEY,mDayOfWeek);
-        outState.putString(PreferenceHelper.NEW_REMINDER_ALERT_KEY,alert);
     }
 }
