@@ -2,7 +2,7 @@ package com.example.umborno.di;
 
 import androidx.lifecycle.ViewModelProviders;
 
-import com.example.umborno.ui.ReminderActivity;
+import com.example.umborno.ui.MainActivity;
 import com.example.umborno.viewmodel.LocationViewModel;
 import com.example.umborno.viewmodel.RepeatViewModel;
 
@@ -12,14 +12,12 @@ import dagger.Provides;
 @Module
 public class ReminderModule {
     @Provides
-    @PerReminderActivity
-    static LocationViewModel provideLocationViewModel(ReminderActivity activity){
+    static LocationViewModel provideLocationViewModel(MainActivity activity){
         return ViewModelProviders.of(activity).get(LocationViewModel.class);
     }
 
     @Provides
-    @PerReminderActivity
-    static RepeatViewModel provideRepeatViewModel(ReminderActivity activity){
+    static RepeatViewModel provideRepeatViewModel(MainActivity activity){
         return ViewModelProviders.of(activity).get(RepeatViewModel.class);
     }
 }

@@ -3,16 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/reminder_graph"
-    app:startDestination="@id/reminderFragment">
-    <fragment
-        android:id="@+id/reminderFragment"
-        android:name="com.example.umborno.ui.ReminderFragment"
-        android:label="Reminders"
-        tools:layout="@layout/fragment_reminder">
-        <action
-            android:id="@+id/action_reminderFragment_to_addReminderFragment"
-            app:destination="@id/addReminderFragment" />
-    </fragment>
+    app:startDestination="@id/addReminderFragment">
     <fragment
         android:id="@+id/addReminderFragment"
         android:name="com.example.umborno.ui.AddReminderFragment"
@@ -44,4 +35,7 @@
         android:name="com.example.umborno.ui.AlertFragment"
         android:label="fragment_alert"
         tools:layout="@layout/fragment_alert" />
+    <deepLink
+        android:id="@+id/deepLink2"
+        app:uri="umborno://reminder" />
 </navigation>

@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.navigation.NavController;
@@ -49,9 +50,9 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
     private Reminder newReminder;
     private ReminderDate reminderDate;
 
-    @Inject
+
     public LocationViewModel locationViewModel;
-    @Inject
+
     RepeatViewModel repeatViewModel;
 
     public AddReminderFragment() {
@@ -111,7 +112,8 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
         initPickers();
         initViewValues();
         initClickListeners();
-
+        ViewModelProvider.Factory factory = new ViewModelProvider.NewInstanceFactory();
+        locationViewModel = new ViewModelProvider(navController.getViewModelStoreOwner(R.id.reminder_graph),factory).get(LocationViewModel.class);
         locationViewModel.getSelectedLocation().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String s) {
@@ -121,6 +123,7 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
             }
         });
 
+        repeatViewModel = new ViewModelProvider(navController.getViewModelStoreOwner(R.id.reminder_graph),factory).get(RepeatViewModel.class);
         repeatViewModel.getRepeatMode().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String s) {
@@ -230,6 +233,7 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
                 }
                 break;
             case R.id.get_location_tv:
+                Log.d(TAG, "onclick: "+navController.getGraph().toString());
                 navController.navigate(R.id.action_addReminderFragment_to_searchFragment);
                 break;
             case R.id.repeat_layout:

@@ -17,19 +17,6 @@ import dagger.multibindings.IntoMap;
 
 @Module
 public abstract class ReminderActivityModule {
-    @ContributesAndroidInjector()
-    abstract ReminderFragment contributeReminderFragment();
 
-    @ContributesAndroidInjector()
-    abstract AddReminderFragment contributeAddReminderFragment();
-
-    @ContributesAndroidInjector
-    abstract SearchFragment contributeSearchFragment();
-
-    @ContributesAndroidInjector
-    abstract RepeatFragment contributeRepeatFragment();
-
-    @ContributesAndroidInjector
-    abstract AlertFragment contributeAlertFragment();
 
 }

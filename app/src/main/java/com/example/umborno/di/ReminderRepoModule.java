@@ -12,14 +12,12 @@ import dagger.Provides;
 @Module
 public class ReminderRepoModule {
     @Provides
-    @PerReminderActivity
     ReminderRepository provideReminderRepository(LocalDataSource localDataSource, AppExecutors executors){
         return new ReminderRepository(localDataSource,executors);
     }
 
 
     @Provides
-    @PerReminderActivity
     SearchRepository provideSearchRepository(RemoteDataSource remoteDataSource){
         return new SearchRepository(remoteDataSource);
     }

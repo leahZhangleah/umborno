@@ -125,6 +125,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener,Sw
         super.onViewCreated(view, savedInstanceState);
         Log.d(TAG, "onViewCreated: ");
         navController = Navigation.findNavController(view);
+        Log.d(TAG, "onClick: "+navController.getGraph().toString());
         view.findViewById(R.id.check_details).setOnClickListener(this);
         longitudeValue = view.findViewById(R.id.locationLog);
         latitudeValue = view.findViewById(R.id.locationLat);
@@ -193,7 +194,6 @@ public class WeatherFragment extends Fragment implements View.OnClickListener,Sw
 
     @Override
     public void onClick(View v) {
-        Log.d(TAG, "onClick: "+navController.getGraph().getNavigatorName());
         navController.navigate(R.id.action_weatherFragment_to_detailFragment);
     }
 

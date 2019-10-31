@@ -12,13 +12,11 @@ import dagger.Provides;
 public class LocationModule {
 
     @Provides
-    @PerMainActivity
     static PermissionHelper providePermissionHelper(MainActivity activity){
         return new PermissionHelper(activity);
     }
 
     @Provides
-    @PerMainActivity
     static FusedLocationProviderClient providerClient(MainActivity context){
         return LocationServices.getFusedLocationProviderClient(context);
     }

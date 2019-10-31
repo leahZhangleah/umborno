@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavAction;
 import androidx.navigation.NavController;
 import androidx.navigation.NavHost;
+import androidx.navigation.NavHostController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -67,9 +68,10 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigationView);
         appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.weatherFragment,R.id.addCityFragment,R.id.settingsFragment,R.id.reminderActivity
+                R.id.weatherFragment,R.id.addCityFragment,R.id.settingsFragment,R.id.reminderFragment
         ).setDrawerLayout(drawerLayout).build();
         navController = Navigation.findNavController(this,R.id.nav_host_fragment);
+
         Log.d(TAG, "setupNavigation: "+navController.getGraph().getNavigatorName());
 
         NavigationUI.setupActionBarWithNavController(this,navController,appBarConfiguration);
@@ -109,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
                 navController.navigate(R.id.weatherFragment);
                 break;
             case R.id.reminder:
-                navController.navigate(R.id.reminderActivity);
+                navController.navigate(R.id.reminderFragment);
                 //Navigation.findNavController(this,R.id.reminderFragment);
                 //navController.navigate(R.id.reminderFragment);
                 break;

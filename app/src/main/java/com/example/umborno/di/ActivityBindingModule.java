@@ -1,7 +1,6 @@
 package com.example.umborno.di;
 
 import com.example.umborno.ui.MainActivity;
-import com.example.umborno.ui.ReminderActivity;
 
 import dagger.Module;
 import dagger.android.ContributesAndroidInjector;
@@ -14,14 +13,9 @@ public abstract class ActivityBindingModule {
     //injectorFactories of your DispatchingAndroidInjector (by using @IntoSet)
 
     //create a MainActivitySubcomponent and use MainActivityModule.class as it's corresponding module
-    @ContributesAndroidInjector(modules ={MainActivityModule.class,LocationModule.class,WeatherViewModelModule.class} )
+    @ContributesAndroidInjector(modules ={MainActivityModule.class} )
     @PerMainActivity
     abstract MainActivity contributeMainActivity();
-
-    @ContributesAndroidInjector(modules = {ReminderActivityModule.class,ReminderModule.class,ReminderViewModelModule.class})
-    @PerReminderActivity
-    abstract ReminderActivity contributeReminderActivity();
-
 
 
 

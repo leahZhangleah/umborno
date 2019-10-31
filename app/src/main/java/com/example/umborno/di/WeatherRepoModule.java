@@ -11,7 +11,6 @@ import dagger.Provides;
 @Module
 public class WeatherRepoModule {
     @Provides
-    @PerMainActivity
     WeatherRepository provideWeatherRepository(RemoteDataSource remoteDataSource, LocalDataSource localDataSource, AppExecutors executor){
         return new WeatherRepository(remoteDataSource, localDataSource, executor);
     }

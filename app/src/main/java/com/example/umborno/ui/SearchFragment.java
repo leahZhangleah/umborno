@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -63,7 +64,7 @@ public class SearchFragment extends Fragment implements TextWatcher {
     @Inject
     public WeatherViewModelProviderFactory factory;
     private SearchLocationViewModel searchLocationViewModel;
-    @Inject
+
     public LocationViewModel locationViewModel;
 
     //private AutoCompleteAdapter autoCompleteAdapter;
@@ -88,6 +89,8 @@ public class SearchFragment extends Fragment implements TextWatcher {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(view);
+        ViewModelProvider.Factory locationFactory = new ViewModelProvider.NewInstanceFactory();
+        locationViewModel = new ViewModelProvider(navController.getViewModelStoreOwner(R.id.reminder_graph),locationFactory).get(LocationViewModel.class);
         cancelBtn = view.findViewById(R.id.cancel_btn);
         cancelBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,6 +112,7 @@ public class SearchFragment extends Fragment implements TextWatcher {
                 String selectedLocation = suggestionsList.get(position);
                 locationViewModel.setSelectedLocation(selectedLocation);
                 //getFragmentManager().popBackStack();
+                Log.d(TAG, "onclick: "+navController.getGraph().toString());
                 navController.popBackStack();
 
             }

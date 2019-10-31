@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
@@ -35,7 +36,7 @@ import dagger.android.support.AndroidSupportInjection;
 public class RepeatFragment extends Fragment {
     private ListView repeatLv;
     private NavController navController;
-    @Inject
+
     RepeatViewModel repeatViewModel;
 
     public RepeatFragment() {
@@ -60,6 +61,9 @@ public class RepeatFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(view);
         repeatLv = view.findViewById(R.id.repeat_lv);
+
+        ViewModelProvider.Factory factory = new ViewModelProvider.NewInstanceFactory();
+        repeatViewModel = new ViewModelProvider(navController.getViewModelStoreOwner(R.id.reminder_graph),factory).get(RepeatViewModel.class);
 
         String[] repeatValues = getResources().getStringArray(R.array.repeat_options);
         //ListAdapter repeatAdapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_checked,repeatValues);
