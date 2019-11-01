@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -47,7 +48,6 @@ public class ReminderFragment extends Fragment{
     private RecyclerView reminderRv;
     private TextView emptyReminderView;
     private ReminderAdapter reminderAdapter;
-    private List<Reminder> reminderList;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -71,24 +71,23 @@ public class ReminderFragment extends Fragment{
         reminderRv = view.findViewById(R.id.reminderRv);
         reminderAdapter = new ReminderAdapter();
         reminderRv.setAdapter(reminderAdapter);
-        reminderViewModel = ViewModelProviders.of(this,factory).get(ReminderViewModel.class);
+        reminderViewModel = new ViewModelProvider(navController.getViewModelStoreOwner(R.id.nav_graph),factory).get(ReminderViewModel.class);
         reminderViewModel.getReminderLiveData().observe(this, new Observer<Resource<List<Reminder>>>() {
             @Override
             public void onChanged(Resource<List<Reminder>> listResource) {
                 if(listResource.getStatus()== Status.SUCCESS){
                     Log.d(TAG, "onChanged: reminders retrieved successfully");
                     List<Reminder> reminders = listResource.getData();
-                    if(reminders==null){
+                    if(reminders==null||reminders.isEmpty()){
                         emptyReminderView.setVisibility(View.VISIBLE);
                     }else{
                         reminderAdapter.setReminderList(reminders);
+                        emptyReminderView.setVisibility(View.INVISIBLE);
                     }
                 }
             }
         });
 
-        /*Reminder newReminder = new Reminder("test reminder","2019 Oct","shanghai","weekly","5 minutes bf");
-        reminderViewModel.addReminder(newReminder);*/
     }
 
 

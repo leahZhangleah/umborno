@@ -45,7 +45,7 @@ import dagger.android.support.AndroidSupportInjection;
 public class WeatherFragment extends Fragment implements View.OnClickListener,SwipeRefreshLayout.OnRefreshListener, LocationResultHandler {
     private static final String TAG = "WeatherFragment";
     NavController navController;
-    private TextView longitudeValue, latitudeValue,currentWeatherText;
+    private TextView longitudeValue, latitudeValue,currentWeatherText,retrieveGpsErrorMsg;
     public static String lon_value,lat_value,current_weather_text;
     private Button checkDetails;
     private SwipeRefreshLayout swipeRefreshLayout;
@@ -130,6 +130,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener,Sw
         longitudeValue = view.findViewById(R.id.locationLog);
         latitudeValue = view.findViewById(R.id.locationLat);
         currentWeatherText = view.findViewById(R.id.current_weather_text);
+        retrieveGpsErrorMsg = view.findViewById(R.id.retrieve_gps_error_msg);
         swipeRefreshLayout = view.findViewById(R.id.refresh_layout);
         swipeRefreshLayout.setOnRefreshListener(this);
 
@@ -216,8 +217,20 @@ public class WeatherFragment extends Fragment implements View.OnClickListener,Sw
 
     @Override
     public void onLocationRetrieved(Location location) {
-        Log.d(TAG, "onLocationRetrieved from last location: "+location.getLatitude() + " "+location.getLongitude());
-        onLocationUpdated(location);
+        if(location!=null){
+            Log.d(TAG, "onLocationRetrieved from last location: "+location.getLatitude() + " "+location.getLongitude());
+            retrieveGpsErrorMsg.setVisibility(View.INVISIBLE);
+            onLocationUpdated(location);
+        }else{
+            retrieveGpsErrorMsg.setText("retrieve gps failed");
+        }
+
+    }
+
+    @Override
+    public void onLocationRetrieveFailed() {
+        retrieveGpsErrorMsg.setVisibility(View.VISIBLE);
+        retrieveGpsErrorMsg.setText("retrieve gps failed");
     }
 
     private void onLocationUpdated(Location location){

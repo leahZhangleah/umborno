@@ -160,4 +160,9 @@ public class SearchFragment extends Fragment implements TextWatcher {
 
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        searchEt.removeTextChangedListener(this);
+    }
 }

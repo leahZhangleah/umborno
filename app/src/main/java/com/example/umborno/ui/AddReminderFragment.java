@@ -14,8 +14,13 @@ import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
@@ -28,8 +33,11 @@ import com.example.umborno.R;
 import com.example.umborno.model.reminder_model.Reminder;
 import com.example.umborno.model.reminder_model.ReminderDate;
 import com.example.umborno.util.PreferenceHelper;
+import com.example.umborno.viewmodel.AlertViewModel;
 import com.example.umborno.viewmodel.LocationViewModel;
+import com.example.umborno.viewmodel.ReminderViewModel;
 import com.example.umborno.viewmodel.RepeatViewModel;
+import com.example.umborno.viewmodel.WeatherViewModelProviderFactory;
 import com.google.gson.Gson;
 
 import javax.inject.Inject;
@@ -39,7 +47,7 @@ import dagger.android.support.AndroidSupportInjection;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class AddReminderFragment extends Fragment implements View.OnClickListener {
+public class AddReminderFragment extends Fragment implements View.OnClickListener,TextWatcher {
     private static final String TAG = "AddReminderFragment";
     private NavController navController;
     private RelativeLayout dateLayout,timeLayout,repeatLayout,alertLayout;
@@ -49,11 +57,14 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
     private TextView newReminderLocation,newReminderDate, newReminderTime, newReminderRepeat,newReminderAlert;
     private Reminder newReminder;
     private ReminderDate reminderDate;
+    private LocationViewModel locationViewModel;
+    private RepeatViewModel repeatViewModel;
+    private AlertViewModel alertViewModel;
+    private boolean addButtonEnabled;
 
-
-    public LocationViewModel locationViewModel;
-
-    RepeatViewModel repeatViewModel;
+    @Inject
+    public WeatherViewModelProviderFactory factory;
+    private ReminderViewModel reminderViewModel;
 
     public AddReminderFragment() {
         // Required empty public constructor
@@ -63,6 +74,7 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
     public void onCreate(@Nullable Bundle savedInstanceState) {
         AndroidSupportInjection.inject(this);
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(addButtonEnabled);
     }
 
     @Override
@@ -95,6 +107,7 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
 
     private void initViews(View view) {
         newReminderDescription = view.findViewById(R.id.new_reminder_description);
+        //todo, focus conflict with other views
         newReminderDate = view.findViewById(R.id.new_reminder_date);
         newReminderTime = view.findViewById(R.id.new_reminder_time);
         newReminderRepeat = view.findViewById(R.id.new_reminder_repeat);
@@ -112,8 +125,8 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
         initPickers();
         initViewValues();
         initClickListeners();
-        ViewModelProvider.Factory factory = new ViewModelProvider.NewInstanceFactory();
-        locationViewModel = new ViewModelProvider(navController.getViewModelStoreOwner(R.id.reminder_graph),factory).get(LocationViewModel.class);
+        ViewModelProvider.Factory reminderFactory = new ViewModelProvider.NewInstanceFactory();
+        locationViewModel = new ViewModelProvider(navController.getViewModelStoreOwner(R.id.reminder_graph),reminderFactory).get(LocationViewModel.class);
         locationViewModel.getSelectedLocation().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String s) {
@@ -123,7 +136,7 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
             }
         });
 
-        repeatViewModel = new ViewModelProvider(navController.getViewModelStoreOwner(R.id.reminder_graph),factory).get(RepeatViewModel.class);
+        repeatViewModel = new ViewModelProvider(navController.getViewModelStoreOwner(R.id.reminder_graph),reminderFactory).get(RepeatViewModel.class);
         repeatViewModel.getRepeatMode().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String s) {
@@ -132,6 +145,16 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
             }
         });
 
+        alertViewModel = new ViewModelProvider(navController.getViewModelStoreOwner(R.id.reminder_graph),reminderFactory).get(AlertViewModel.class);
+        alertViewModel.getAlertMode().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                newReminder.setAlert(s);
+                newReminderAlert.setText(s);
+            }
+        });
+        reminderViewModel = new ViewModelProvider(navController.getViewModelStoreOwner(R.id.nav_graph),factory).get(ReminderViewModel.class);
+        //reminderViewModel = ViewModelProviders.of().get(ReminderViewModel.class);
     }
 
     private void initClickListeners() {
@@ -148,7 +171,7 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
 
     private void initViewValues() {
         newReminderDescription.setText(newReminder.getDescription());
-        newReminderAlert.setText(newReminder.getAlert());
+        newReminderDescription.addTextChangedListener(this);
     }
 
     private void initPickers() {
@@ -163,6 +186,7 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
                 reminderDate.setMonth(monthOfYear);
                 reminderDate.setDay(dayOfMonth);
                 newReminderDate.setText(reminderDate.getDate());
+
             }
         });
         newReminderDate.setText(reminderDate.getDate());
@@ -200,15 +224,6 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
         outState.putString(PreferenceHelper.NEW_REMINDER_KEY,json.toString());
     }
 
-   /* @Override
-    public void onDestroy() {
-        super.onDestroy();
-        Log.d(TAG, "onDestroy: ");
-        //todo, destroy locationviewmodel, redefine its scope to avoid memory leak
-        locationViewModel.setSelectedLocation("");
-        getViewModelStore().clear();
-    }*/
-
     @Override
     public void onClick(View v) {
         switch (v.getId()){
@@ -244,4 +259,53 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
                 break;
         }
     }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_add_reminder_menu,menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.add_a_new_reminder_btn:
+                newReminder.setDescription(newReminderDescription.getText().toString());
+                newReminder.setDateTime(reminderDate);
+                reminderViewModel.addReminder(newReminder);
+                navController.popBackStack();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        newReminderDescription.removeTextChangedListener(this);
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+        if(s.length()!=0){
+            addButtonEnabled = true;
+        }else{
+            addButtonEnabled = false;
+        }
+        setHasOptionsMenu(addButtonEnabled);
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+
+    }
+
+
+
 }

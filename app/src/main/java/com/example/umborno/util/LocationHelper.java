@@ -83,13 +83,16 @@ public class LocationHelper implements LifecycleObserver {
                                 //intent.putExtra(LocationUpdatesBroadcastReceiver.LAT_KEY,location.getLatitude());
                                 //context.sendBroadcast(intent);
                                 resultHandler.onLocationRetrieved(currentLocation);
+                            }else{
+                                //Log.d(TAG, "retrieve gps failed: "+task.getException().getLocalizedMessage());
+                                resultHandler.onLocationRetrieveFailed();
                             }
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-
+                            resultHandler.onLocationRetrieveFailed();
                         }
                     });
 

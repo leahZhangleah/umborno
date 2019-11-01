@@ -33,11 +33,6 @@ public class ReminderRepository {
     }
 
     public void addReminder(final Reminder reminder){
-        executor.getDiskIO().execute(new Runnable() {
-            @Override
-            public void run() {
-                localDataSource.addReminder(reminder);
-            }
-        });
+        executor.getDiskIO().execute(() -> localDataSource.addReminder(reminder));
     }
 }

@@ -13,17 +13,16 @@ import javax.inject.Inject;
 
 public class ReminderViewModel extends ViewModel {
     private static final String TAG = "ReminderViewModel";
-    LiveData<Resource<List<Reminder>>> reminderLiveData;
+    //LiveData<Resource<List<Reminder>>> reminderLiveData;
     ReminderRepository reminderRepository;
 
     @Inject
     public ReminderViewModel(ReminderRepository reminderRepository){
         this.reminderRepository = reminderRepository;
-        reminderLiveData =reminderRepository.getAllReminders();
     }
 
     public LiveData<Resource<List<Reminder>>> getReminderLiveData() {
-        return reminderLiveData;
+        return reminderRepository.getAllReminders();
     }
 
     public void addReminder(Reminder reminder){

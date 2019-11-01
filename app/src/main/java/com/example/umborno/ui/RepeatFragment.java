@@ -15,20 +15,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.CheckedTextView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.example.umborno.R;
 import com.example.umborno.viewmodel.RepeatViewModel;
 
 import java.util.Arrays;
-
-import javax.inject.Inject;
-
-import dagger.android.support.AndroidSupportInjection;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -37,7 +29,7 @@ public class RepeatFragment extends Fragment {
     private ListView repeatLv;
     private NavController navController;
 
-    RepeatViewModel repeatViewModel;
+    private RepeatViewModel repeatViewModel;
 
     public RepeatFragment() {
         // Required empty public constructor
@@ -46,7 +38,6 @@ public class RepeatFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AndroidSupportInjection.inject(this);
     }
 
     @Override
@@ -66,14 +57,14 @@ public class RepeatFragment extends Fragment {
         repeatViewModel = new ViewModelProvider(navController.getViewModelStoreOwner(R.id.reminder_graph),factory).get(RepeatViewModel.class);
 
         String[] repeatValues = getResources().getStringArray(R.array.repeat_options);
-        //ListAdapter repeatAdapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_checked,repeatValues);
-        RepeatAdapter repeatAdapter = new RepeatAdapter(getContext(),repeatValues,0);
-        repeatLv.setAdapter(repeatAdapter);
+        //ListAdapter customAdapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_checked,repeatValues);
+        CustomAdapter customAdapter = new CustomAdapter(getContext(),repeatValues,0);
+        repeatLv.setAdapter(customAdapter);
         repeatLv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 view.setBackground(getResources().getDrawable(R.drawable.pressed_layout_bg,null));
-                repeatAdapter.setPosition(position);
+                customAdapter.setPosition(position);
                 String repeatMode = repeatValues[position];
                 repeatViewModel.setRepeatMode(repeatMode);
                 navController.popBackStack();
@@ -84,7 +75,7 @@ public class RepeatFragment extends Fragment {
             @Override
             public void onChanged(String s) {
                 int selectPos = Arrays.asList(repeatValues).indexOf(s);
-                repeatAdapter.setPosition(selectPos);
+                customAdapter.setPosition(selectPos);
             }
         });
 

@@ -15,7 +15,8 @@
         android:layout_height="wrap_content"
         android:hint="description"
         android:textSize="@dimen/text_size"
-        android:background="@drawable/layout_bg"/>
+        android:background="@drawable/layout_bg"
+        android:imeOptions="actionDone" />
     <TextView
         android:id="@+id/get_location_tv"
         android:padding="@dimen/layout_padding"

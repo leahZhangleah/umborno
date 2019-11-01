@@ -7,7 +7,7 @@
     <TextView
         tools:text = "Never"
         android:layout_alignParentStart="true"
-        android:id="@+id/repeat_option_tv"
+        android:id="@+id/reminder_custom_option_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceListItemSmall"
@@ -16,7 +16,7 @@
         android:minHeight="?android:attr/listPreferredItemHeightSmall" />
 
     <ImageView
-        android:id="@+id/repeated_option_selected"
+        android:id="@+id/reminder_custom_option_selected"
         android:visibility="invisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -4,4 +4,5 @@ import android.location.Location;
 
 public interface LocationResultHandler {
     void onLocationRetrieved(Location location);
+    void onLocationRetrieveFailed();
 }

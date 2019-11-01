@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ListView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.AlertFragment">
+    tools:context=".ui.AlertFragment"
+    android:background="@android:color/white"
+    android:footerDividersEnabled="true"
+    android:headerDividersEnabled="true"
+    android:divider="@drawable/divider"
+    android:id="@+id/alert_lv">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="ALERT" />
-
-</FrameLayout>
+</ListView>

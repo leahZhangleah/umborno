@@ -13,10 +13,10 @@ import androidx.annotation.Nullable;
 
 import com.example.umborno.R;
 
-public class RepeatAdapter extends ArrayAdapter<String> {
+public class CustomAdapter extends ArrayAdapter<String> {
     private int selectedPos;
 
-    public RepeatAdapter(@NonNull Context context, @NonNull String[] objects,int position) {
+    public CustomAdapter(@NonNull Context context, @NonNull String[] objects, int position) {
         super(context, 0, objects);
         selectedPos = position;
     }
@@ -24,13 +24,13 @@ public class RepeatAdapter extends ArrayAdapter<String> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        String repeatMode = getItem(position);
+        String mode = getItem(position);
         if(convertView==null){
-            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.repeat_option_item,parent,false);
+            convertView = LayoutInflater.from(parent.getContext()).inflate(R.layout.reminder_custom_option_item,parent,false);
         }
-        TextView repeatOptionTv = (TextView) convertView.findViewById(R.id.repeat_option_tv);
-        ImageView selectedIv = (ImageView) convertView.findViewById(R.id.repeated_option_selected);
-        repeatOptionTv.setText(repeatMode);
+        TextView repeatOptionTv = (TextView) convertView.findViewById(R.id.reminder_custom_option_tv);
+        ImageView selectedIv = (ImageView) convertView.findViewById(R.id.reminder_custom_option_selected);
+        repeatOptionTv.setText(mode);
         if(selectedPos == position){
             selectedIv.setVisibility(View.VISIBLE);
         }else{
