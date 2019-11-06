@@ -17,12 +17,10 @@ import retrofit2.Call;
 public class RemoteDataSource {
 
     public static final int DAYS = 1;
-    private final ApiInterface apiInterface;
     private final AccuWeatherApiInterface accuWeatherApiInterface;
 
     @Inject
-    public RemoteDataSource(ApiInterface apiInterface,AccuWeatherApiInterface accuWeatherApiInterface) {
-        this.apiInterface = apiInterface;
+    public RemoteDataSource(AccuWeatherApiInterface accuWeatherApiInterface) {
         this.accuWeatherApiInterface = accuWeatherApiInterface;
     }
 

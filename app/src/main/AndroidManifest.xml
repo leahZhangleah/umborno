@@ -20,6 +20,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <receiver
+            android:name=".schedule.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true"></receiver>
 
         <service
             android:name=".schedule.MyJobService"
@@ -47,6 +51,11 @@
                 <action android:name="com.example.umborno.locationupdatespendingintent.action.PROCESS_UPDATES" />
             </intent-filter>
         </receiver>
+        <provider
+            android:authorities="${applicationId}.workmanager-init"
+            android:name="androidx.work.impl.WorkManagerInitializer"
+            android:exported="false"
+            tools:node="remove"/>
     </application>
 
 </manifest>

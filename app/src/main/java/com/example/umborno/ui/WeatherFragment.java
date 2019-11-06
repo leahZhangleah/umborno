@@ -97,7 +97,8 @@ public class WeatherFragment extends Fragment implements View.OnClickListener,Sw
                 isLoading = false;
                 swipeRefreshLayout.setRefreshing(isLoading);
                 if(currentWeathers!=null && !currentWeathers.isEmpty()){
-                    onCurrentWeatherUpdated(currentWeathers.get(0));
+                    CurrentWeather currentWeather = currentWeathers.get(0);
+                    onCurrentWeatherUpdated(currentWeather);
                 }
             }
         });

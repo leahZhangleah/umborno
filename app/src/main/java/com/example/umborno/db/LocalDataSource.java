@@ -51,8 +51,8 @@ public class LocalDataSource {
         return weatherDao.getReminders();
     }
 
-    public void addReminder(Reminder reminder){
-        weatherDao.save(reminder);
+    public long addReminder(Reminder reminder){
+        return weatherDao.save(reminder);
     }
 
     public void save(LocationKey locationKey){

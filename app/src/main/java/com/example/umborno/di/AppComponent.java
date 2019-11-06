@@ -3,6 +3,8 @@ package com.example.umborno.di;
 import android.app.Application;
 
 import com.example.umborno.UmbrellaApp;
+import com.example.umborno.di.worker.WorkerBindingModule;
+import com.example.umborno.schedule.SimpleWorkerFactory;
 
 import javax.inject.Singleton;
 
@@ -11,7 +13,7 @@ import dagger.Component;
 import dagger.android.AndroidInjectionModule;
 
 @Singleton
-@Component(modules = {AndroidInjectionModule.class,AppModule.class, ActivityBindingModule.class})
+@Component(modules = {AndroidInjectionModule.class,AppModule.class, ActivityBindingModule.class, WorkerBindingModule.class})
 public interface AppComponent {
 
     @Component.Builder
@@ -22,5 +24,4 @@ public interface AppComponent {
     }
 
     void inject(UmbrellaApp app);
-
 }

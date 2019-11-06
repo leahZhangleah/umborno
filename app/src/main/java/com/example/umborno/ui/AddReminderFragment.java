@@ -9,10 +9,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -25,13 +29,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.example.umborno.R;
+import com.example.umborno.db.DbResponse;
 import com.example.umborno.model.reminder_model.Reminder;
 import com.example.umborno.model.reminder_model.ReminderDate;
+import com.example.umborno.schedule.CurrentWeatherWorker;
 import com.example.umborno.util.PreferenceHelper;
 import com.example.umborno.viewmodel.AlertViewModel;
 import com.example.umborno.viewmodel.LocationViewModel;
@@ -39,6 +47,8 @@ import com.example.umborno.viewmodel.ReminderViewModel;
 import com.example.umborno.viewmodel.RepeatViewModel;
 import com.example.umborno.viewmodel.WeatherViewModelProviderFactory;
 import com.google.gson.Gson;
+
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -55,6 +65,7 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
     private TimePicker timePicker;
     private EditText newReminderDescription;
     private TextView newReminderLocation,newReminderDate, newReminderTime, newReminderRepeat,newReminderAlert;
+    private ProgressBar progressBar;
     private Reminder newReminder;
     private ReminderDate reminderDate;
     private LocationViewModel locationViewModel;
@@ -122,6 +133,8 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
         datePicker = view.findViewById(R.id.date_picker);
         timePicker = view.findViewById(R.id.time_picker);
 
+        progressBar = view.findViewById(R.id.progress_bar);
+
         initPickers();
         initViewValues();
         initClickListeners();
@@ -130,9 +143,16 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
         locationViewModel.getSelectedLocation().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String s) {
-                newReminder.setLocation(s);
+                //newReminder.setLocationKey(s);
                 //selectedLocation = s;
                 newReminderLocation.setText(s);
+            }
+        });
+
+        locationViewModel.getSelectedLocationKey().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                newReminder.setLocationKey(s);
             }
         });
 
@@ -215,7 +235,7 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         newReminder.setDescription(newReminderDescription.getText().toString());
-        newReminder.setLocation(newReminderLocation.getText().toString());
+        newReminder.setLocationKey(newReminderLocation.getText().toString());
         newReminder.setDateTime(reminderDate);
         newReminder.setAlert(newReminderAlert.getText().toString());
 
@@ -272,11 +292,64 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
             case R.id.add_a_new_reminder_btn:
                 newReminder.setDescription(newReminderDescription.getText().toString());
                 newReminder.setDateTime(reminderDate);
-                reminderViewModel.addReminder(newReminder);
-                navController.popBackStack();
-                return true;
+                reminderViewModel.addReminder(newReminder).observe(this, new Observer<DbResponse<Reminder>>() {
+                    @Override
+                    public void onChanged(DbResponse<Reminder> reminderDbResponse) {
+                        if (reminderDbResponse.getResultCode()==DbResponse.LOADING_CODE){
+                            progressBar.setVisibility(View.VISIBLE);
+                        }else{
+                            progressBar.setVisibility(View.INVISIBLE);
+                            if(reminderDbResponse.getResultCode()==-1){ //error code returned from db
+                                Toast.makeText(getContext(),"Reminder not saved. Something went wrong",Toast.LENGTH_SHORT).show();
+                            }else{
+                                createBackgroundTaskForNewReminder(reminderDbResponse.getBody());
+                            }
+                        }
+                    }
+                });
+
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void createBackgroundTaskForNewReminder(Reminder reminder) {
+        //todo: move this to a helper class
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build();
+        Data data = new Data.Builder()
+                .putString(CurrentWeatherWorker.REMINDER_LOCATION_ID_KEY,reminder.getLocationKey())
+                .build();
+        OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(CurrentWeatherWorker.class)
+                .setConstraints(constraints)
+                .setInitialDelay(10,TimeUnit.SECONDS)
+                .build();
+
+
+        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
+                CurrentWeatherWorker.class, 2, TimeUnit.MINUTES)
+                .setConstraints(constraints)
+                .setInputData(data)
+                .setInitialDelay(10, TimeUnit.SECONDS)
+                .build();
+
+        WorkManager.getInstance(getContext()).enqueue(periodicWorkRequest);
+        Toast.makeText(getContext(),"Reminder saved successfully",Toast.LENGTH_SHORT).show();
+        navController.popBackStack();
+
+
+        //cancel work
+        //WorkManager.getInstance(getContext()).cancelWorkById(workRequest.getId());
+
+
+                                /*Calendar calendar = Calendar.getInstance();
+                                Reminder reminder = reminderDbResponse.getBody();
+                                ReminderDate reminderDate = reminder.getDateTime();
+                                calendar.set(reminderDate.getYear(),reminderDate.getMonth(),reminderDate.getDay(),reminderDate.getHour(),reminderDate.getMinute());
+                                AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
+                                Intent intent = new Intent(getContext(), AlarmReceiver.class);
+                                PendingIntent alarmIntent = PendingIntent.getBroadcast(getContext(),0,intent,0);
+                                alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),AlarmManager.INTERVAL_DAY,alarmIntent);*/
     }
 
 

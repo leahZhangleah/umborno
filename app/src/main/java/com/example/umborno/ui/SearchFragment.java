@@ -60,6 +60,7 @@ public class SearchFragment extends Fragment implements TextWatcher {
     private EditText searchEt;
     private ListView locationSuggestionsLv;
     private List<String> suggestionsList;
+    private List<String> suggestedLocationKeys;
     private NavController navController;
     @Inject
     public WeatherViewModelProviderFactory factory;
@@ -98,6 +99,7 @@ public class SearchFragment extends Fragment implements TextWatcher {
                 //if cancelled, make current location the default option
                 String current_location = "Current Location";
                 locationViewModel.setSelectedLocation(current_location);
+                //todo get current location key from sp
                 //close fragment
                 navController.popBackStack();
 
@@ -111,6 +113,7 @@ public class SearchFragment extends Fragment implements TextWatcher {
                 view.setBackground(getResources().getDrawable(R.drawable.pressed_layout_bg,null));
                 String selectedLocation = suggestionsList.get(position);
                 locationViewModel.setSelectedLocation(selectedLocation);
+                locationViewModel.setSelectedLocationKey(suggestedLocationKeys.get(position));
                 //getFragmentManager().popBackStack();
                 Log.d(TAG, "onclick: "+navController.getGraph().toString());
                 navController.popBackStack();
@@ -127,11 +130,13 @@ public class SearchFragment extends Fragment implements TextWatcher {
             @Override
             public void onChanged(List<SearchSuggestion> searchSuggestions) {
                 suggestionsList = new ArrayList<>();
+                suggestedLocationKeys = new ArrayList<>();
                 if(searchSuggestions!=null&&!searchSuggestions.isEmpty()){
                     for(SearchSuggestion searchSuggestion:searchSuggestions){
                         String city = searchSuggestion.getLocalizedName();
                         String country = searchSuggestion.getCountry().getLocalizedName();
                         suggestionsList.add(city+" , "+country);
+                        suggestedLocationKeys.add(searchSuggestion.getKey());
                     }
                     ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_1,suggestionsList);
                     locationSuggestionsLv.setAdapter(adapter);

@@ -1,7 +1,8 @@
-package com.example.umborno.di;
+package com.example.umborno.di.viewmodel;
 
 import androidx.lifecycle.ViewModel;
 
+import com.example.umborno.di.WeatherRepoModule;
 import com.example.umborno.viewmodel.WeatherViewModel;
 
 import dagger.Binds;

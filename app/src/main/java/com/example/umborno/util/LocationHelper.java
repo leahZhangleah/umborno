@@ -69,7 +69,7 @@ public class LocationHelper implements LifecycleObserver {
 
     @SuppressLint("MissingPermission")
      public void getLocation(){
-        Log.d(TAG, "getLocation: ");
+        Log.d(TAG, "getLocationKey: ");
         if(fusedLocationProviderClient!=null){
             fusedLocationProviderClient.getLastLocation()
                     .addOnCompleteListener(new OnCompleteListener<Location>() {
@@ -97,7 +97,7 @@ public class LocationHelper implements LifecycleObserver {
                     });
 
         }else{
-            Log.d(TAG, "getLocation: fused client is null");
+            Log.d(TAG, "getLocationKey: fused client is null");
         }
 
 

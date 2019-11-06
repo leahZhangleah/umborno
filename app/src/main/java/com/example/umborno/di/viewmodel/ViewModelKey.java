@@ -1,4 +1,4 @@
-package com.example.umborno.di;
+package com.example.umborno.di.viewmodel;
 
 import android.app.Activity;
 

@@ -1,8 +1,10 @@
-package com.example.umborno.di;
+package com.example.umborno.di.viewmodel;
 
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.umborno.di.RepoModule;
+import com.example.umborno.di.viewmodel.ViewModelKey;
 import com.example.umborno.viewmodel.ReminderViewModel;
 import com.example.umborno.viewmodel.SearchLocationViewModel;
 import com.example.umborno.viewmodel.WeatherViewModel;

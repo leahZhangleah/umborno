@@ -1,7 +1,8 @@
-package com.example.umborno.di;
+package com.example.umborno.di.viewmodel;
 
 import androidx.lifecycle.ViewModel;
 
+import com.example.umborno.di.ReminderRepoModule;
 import com.example.umborno.viewmodel.ReminderViewModel;
 import com.example.umborno.viewmodel.SearchLocationViewModel;
 

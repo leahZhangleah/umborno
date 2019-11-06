@@ -23,7 +23,7 @@ public interface WeatherDao {
     public Maybe<List<CurrentWeather>> getCurrentWeather(String locationKey);
 
     @Insert(onConflict = REPLACE)
-    public void save(Reminder reminder);
+    public long save(Reminder reminder);
 
     @Query("select * from reminder")
     public List<Reminder> getReminders();

@@ -1,8 +1,10 @@
 package com.example.umborno.viewmodel;
 
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.umborno.db.DbResponse;
 import com.example.umborno.http.ReminderRepository;
 import com.example.umborno.http.Resource;
 import com.example.umborno.model.reminder_model.Reminder;
@@ -25,8 +27,8 @@ public class ReminderViewModel extends ViewModel {
         return reminderRepository.getAllReminders();
     }
 
-    public void addReminder(Reminder reminder){
-        reminderRepository.addReminder(reminder);
+    public MutableLiveData<DbResponse<Reminder>> addReminder(Reminder reminder){
+        return reminderRepository.addReminder(reminder);
     }
 
     public void deleteReminder(Reminder reminder){

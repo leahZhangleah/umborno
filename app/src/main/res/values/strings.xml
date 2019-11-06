@@ -7,8 +7,8 @@
     <string name="location_alert_pos_btn">Location Settings</string>
     <string name="location_alert_neg_btn">Cancel</string>
     <string name="gps_title">Enable GPS service</string>
-    <string name="gps_msg">UmbOrNo needs to use GPS to get concise location</string>
-    <string name="rational_msg">UmbOrNo needs to use location service to determine your location</string>
+    <string name="gps_msg">UmbOrNo needs to use GPS to get concise locationKey</string>
+    <string name="rational_msg">UmbOrNo needs to use locationKey service to determine your locationKey</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="repeat_custom">Custom</string>

@@ -26,7 +26,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @Module
 public class ApiModule {
     //Network injection
-    public static String  BASE_URL = "http://api.openweathermap.org/data/2.5/";
+    //public static String  BASE_URL = "http://api.openweathermap.org/data/2.5/";
     public static final String ACCU_WEATHER_BASE_URL = "http://dataservice.accuweather.com/";
 
 
@@ -43,12 +43,12 @@ public class ApiModule {
     OkHttpClient provideOkHttpClient(Cache cache, ConnectivityInterceptor connectivityInterceptor, RequestInterceptor requestInterceptor){
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.level(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
-        httpClient.cache(cache)
+        OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
+        httpClientBuilder.cache(cache)
                 .addInterceptor(logging)
                 .addNetworkInterceptor(requestInterceptor)
                 .addInterceptor(connectivityInterceptor);
-        return httpClient.build();
+        return httpClientBuilder.build();
     }
 
     @Provides
@@ -61,36 +61,23 @@ public class ApiModule {
     @Singleton
     Retrofit provideRetrofit(Gson gson, OkHttpClient okHttpClient){
         Retrofit retrofit =new Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(ACCU_WEATHER_BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(new LiveDataCallAdapterFactory())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.createAsync())
                 .client(okHttpClient)
                 .build();
         return retrofit;
     }
 
-    @Provides
+    /*@Provides
     @Singleton
     ApiInterface provideApiInterface(Retrofit retrofit){
         return retrofit.create(ApiInterface.class);
-    }
+    }*/
 
     @Provides
     @Singleton
-    AccuWeatherApiInterface provideAccuWeatherApiInterface(Cache cache,ConnectivityInterceptor connectivityInterceptor, RequestInterceptor requestInterceptor,Gson gson){
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.level(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
-        httpClientBuilder.cache(cache)
-                .addInterceptor(logging)
-                .addNetworkInterceptor(requestInterceptor)
-                .addInterceptor(connectivityInterceptor);
-        Retrofit retrofit =new Retrofit.Builder()
-                .baseUrl(ACCU_WEATHER_BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.createAsync())
-                .client(httpClientBuilder.build())
-                .build();
+    AccuWeatherApiInterface provideAccuWeatherApiInterface(Retrofit retrofit){
         return retrofit.create(AccuWeatherApiInterface.class);
 
     }

@@ -24,6 +24,9 @@ public interface AccuWeatherApiInterface {
     @GET("currentconditions/v1/{key}")
     Maybe<List<CurrentWeather>> getCurrentWeather(@Path("key") String key);
 
+    @GET("currentconditions/v1/{key}")
+    Call<List<CurrentWeather>> getCurrentWeatherForReminder(@Path("key") String key);
+
     @GET("locations/v1/cities/autocomplete")
     Call<List<SearchSuggestion>> getLocationSuggestions(@Query("q") String userInput);
 }
