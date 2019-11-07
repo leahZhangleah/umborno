@@ -17,6 +17,7 @@ import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -40,6 +41,7 @@ import com.example.umborno.db.DbResponse;
 import com.example.umborno.model.reminder_model.Reminder;
 import com.example.umborno.model.reminder_model.ReminderDate;
 import com.example.umborno.schedule.CurrentWeatherWorker;
+import com.example.umborno.schedule.ReminderWorkerHelper;
 import com.example.umborno.util.PreferenceHelper;
 import com.example.umborno.viewmodel.AlertViewModel;
 import com.example.umborno.viewmodel.LocationViewModel;
@@ -314,42 +316,12 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
 
     private void createBackgroundTaskForNewReminder(Reminder reminder) {
         //todo: move this to a helper class
-        Constraints constraints = new Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build();
-        Data data = new Data.Builder()
-                .putString(CurrentWeatherWorker.REMINDER_LOCATION_ID_KEY,reminder.getLocationKey())
-                .build();
-        OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(CurrentWeatherWorker.class)
-                .setConstraints(constraints)
-                .setInitialDelay(10,TimeUnit.SECONDS)
-                .build();
-
-
-        PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
-                CurrentWeatherWorker.class, 2, TimeUnit.MINUTES)
-                .setConstraints(constraints)
-                .setInputData(data)
-                .setInitialDelay(10, TimeUnit.SECONDS)
-                .build();
-
-        WorkManager.getInstance(getContext()).enqueue(periodicWorkRequest);
+        WorkRequest workRequest = ReminderWorkerHelper.createWorkRequest(reminder);
+        if(workRequest!=null){
+            WorkManager.getInstance(getContext()).enqueue(workRequest);
+        }
         Toast.makeText(getContext(),"Reminder saved successfully",Toast.LENGTH_SHORT).show();
         navController.popBackStack();
-
-
-        //cancel work
-        //WorkManager.getInstance(getContext()).cancelWorkById(workRequest.getId());
-
-
-                                /*Calendar calendar = Calendar.getInstance();
-                                Reminder reminder = reminderDbResponse.getBody();
-                                ReminderDate reminderDate = reminder.getDateTime();
-                                calendar.set(reminderDate.getYear(),reminderDate.getMonth(),reminderDate.getDay(),reminderDate.getHour(),reminderDate.getMinute());
-                                AlarmManager alarmManager = (AlarmManager) getContext().getSystemService(Context.ALARM_SERVICE);
-                                Intent intent = new Intent(getContext(), AlarmReceiver.class);
-                                PendingIntent alarmIntent = PendingIntent.getBroadcast(getContext(),0,intent,0);
-                                alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,calendar.getTimeInMillis(),AlarmManager.INTERVAL_DAY,alarmIntent);*/
     }
 
 

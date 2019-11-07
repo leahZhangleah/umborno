@@ -32,6 +32,8 @@ public class CurrentWeatherWorker extends Worker {
     public static final String CHANNEL_ID = "umborno";
     public static final String CHANNEL_NAME = "umborno";
     public static final String REMINDER_LOCATION_ID_KEY="reminder_location_id_key";
+    public static final String REMINDER_ALERT_KEY ="reminder_alert_key";
+    public static final String REMINDER_ALERT_TIME_KEY="reminder_alert_time_key";
     public AccuWeatherApiInterface apiInterface;
     private ListenableWorker.Result result = Result.failure();
 
@@ -57,15 +59,16 @@ public class CurrentWeatherWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-
         String locationKey = getInputData().getString(REMINDER_LOCATION_ID_KEY);
+        String alert = getInputData().getString(REMINDER_ALERT_KEY);
+        long alertTime = getInputData().getLong(REMINDER_ALERT_TIME_KEY,System.currentTimeMillis());
         fetchWeather(locationKey)
                 .subscribe(new Consumer<List<CurrentWeather>>() {
                     @Override
                     public void accept(List<CurrentWeather> currentWeathers) throws Exception {
                         if (currentWeathers != null && !currentWeathers.isEmpty()) {
                             CurrentWeather currentWeather = currentWeathers.get(0);
-                            displayNotification("today's weather",currentWeather.getWeatherText());
+                            parseAlert(alert,currentWeather,alertTime);
                             result = Result.success();
                         }
                     }
@@ -80,6 +83,14 @@ public class CurrentWeatherWorker extends Worker {
         return result;
     }
 
+    private void parseAlert(String alert,CurrentWeather currentWeather,long alertTime) {
+        if(alert.equals("None")){
+            Log.d(TAG, "parseAlert: no notification required");
+        }else{
+            displayNotification("today's weather",currentWeather.getWeatherText(),alertTime);
+        }
+    }
+
 
     private Maybe<List<CurrentWeather>> fetchWeather(String locationKey) {
         Log.d(TAG, "fetchWeather: " + apiInterface.toString());
@@ -87,7 +98,7 @@ public class CurrentWeatherWorker extends Worker {
         return apiInterface.getCurrentWeather(locationKey).subscribeOn(Schedulers.io());
     }
 
-    private void displayNotification(String title, String content) {
+    private void displayNotification(String title, String content,long when) {
         NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID,CHANNEL_NAME,NotificationManager.IMPORTANCE_DEFAULT);
@@ -97,7 +108,8 @@ public class CurrentWeatherWorker extends Worker {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(),CHANNEL_ID)
                 .setContentTitle(title)
                 .setContentText(content)
-                .setSmallIcon(R.mipmap.ic_launcher_round);
+                .setSmallIcon(R.mipmap.ic_launcher_round)
+                .setWhen(when);
         notificationManager.notify(1,notificationBuilder.build());
 
     }

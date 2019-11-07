@@ -13,13 +13,13 @@ android {
     buildTypes {
         release {
             buildConfigField "String", "API_KEY", "\"a4bee604b2ebdeba98d1f9ff77faf245\""
-            buildConfigField "String", "ACCU_API_KEY", "\"MWbZWE2Z9aG34U8WVuIcPuR6aVbY9HFA\""
+            buildConfigField "String", "ACCU_API_KEY", "\"8715juKAhxn6lzgLYJFJJ3EAnwgrhMDj\""
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
             buildConfigField "String", "API_KEY", "\"a4bee604b2ebdeba98d1f9ff77faf245\""
-            buildConfigField "String", "ACCU_API_KEY", "\"MWbZWE2Z9aG34U8WVuIcPuR6aVbY9HFA\""
+            buildConfigField "String", "ACCU_API_KEY", "\"8715juKAhxn6lzgLYJFJJ3EAnwgrhMDj\""
         }
 
     }
