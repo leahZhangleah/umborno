@@ -52,6 +52,22 @@ public class ReminderRepository {
         });
         return dbResponseMutableLiveData;
     }
+
+    public MutableLiveData<DbResponse<Reminder>> deleteReminder(final Reminder reminder){
+        MutableLiveData<DbResponse<Reminder>> dbResponseMutableLiveData = new MutableLiveData<>(DbResponse.loading(null,DbFunction.DELETE));
+        executor.getDiskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                int index =localDataSource.deleteReminder(reminder);
+                if(index !=-1){
+                    dbResponseMutableLiveData.postValue(DbResponse.success(index,reminder,DbFunction.DELETE));
+                }else{
+                    dbResponseMutableLiveData.postValue(DbResponse.error(index,null,DbFunction.DELETE));
+                }
+            }
+        });
+        return dbResponseMutableLiveData;
+    }
 }
 
 

@@ -11,7 +11,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,9 +23,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.umborno.R;
+import com.example.umborno.db.DbResponse;
+import com.example.umborno.schedule.ReminderWorkerHelper;
 import com.example.umborno.viewmodel.ReminderViewModel;
 import com.example.umborno.viewmodel.WeatherViewModelProviderFactory;
 import com.example.umborno.http.Resource;
@@ -48,6 +55,8 @@ public class ReminderFragment extends Fragment{
     private RecyclerView reminderRv;
     private TextView emptyReminderView;
     private ReminderAdapter reminderAdapter;
+    private List<Reminder> reminderList;
+    private ProgressBar deleteProgressBar;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,10 +77,42 @@ public class ReminderFragment extends Fragment{
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(view);
         emptyReminderView = view.findViewById(R.id.empty_reminder);
+        deleteProgressBar = view.findViewById(R.id.delete_progress_bar);
         reminderRv = view.findViewById(R.id.reminderRv);
         reminderAdapter = new ReminderAdapter();
+        //enable swipe
+        reminderAdapter.setmOnSwipeListener(new ReminderAdapter.onSwipeListener() {
+            @Override
+            public void onDel(int pos) {
+                Log.d(TAG, "onDel: delete reminder");
+                reminderViewModel.deleteReminder(reminderList.get(pos)).observe(getViewLifecycleOwner(), new Observer<DbResponse<Reminder>>() {
+                    @Override
+                    public void onChanged(DbResponse<Reminder> reminderDbResponse) {
+                        if (reminderDbResponse.getResultCode()==DbResponse.LOADING_CODE){
+                            deleteProgressBar.setVisibility(View.VISIBLE);
+                        }else{
+                            deleteProgressBar.setVisibility(View.INVISIBLE);
+                            if(reminderDbResponse.getResultCode()==-1){ //error code returned from db
+                                Toast.makeText(getContext(),"Reminder not deleted. Something went wrong",Toast.LENGTH_SHORT).show();
+                            }else{
+                                deleteBackgroundTaskForReminder(reminderDbResponse.getBody());
+                            }
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onEdit(int pos) {
+                //todo
+                Log.d(TAG, "onEdit: reminder");
+                ReminderFragmentDirections.ActionReminderFragmentToAddReminderFragment action =
+                        ReminderFragmentDirections.actionReminderFragmentToAddReminderFragment(reminderList.get(pos));
+                navController.navigate(action);
+            }
+        });
         reminderRv.setAdapter(reminderAdapter);
-        reminderViewModel = new ViewModelProvider(navController.getViewModelStoreOwner(R.id.nav_graph),factory).get(ReminderViewModel.class);
+        reminderViewModel = new ViewModelProvider(navController.getViewModelStoreOwner(R.id.reminder_graph),factory).get(ReminderViewModel.class);
         reminderViewModel.getReminderLiveData().observe(this, new Observer<Resource<List<Reminder>>>() {
             @Override
             public void onChanged(Resource<List<Reminder>> listResource) {
@@ -81,6 +122,7 @@ public class ReminderFragment extends Fragment{
                     if(reminders==null||reminders.isEmpty()){
                         emptyReminderView.setVisibility(View.VISIBLE);
                     }else{
+                        reminderList = reminders;
                         reminderAdapter.setReminderList(reminders);
                         emptyReminderView.setVisibility(View.INVISIBLE);
                     }
@@ -88,6 +130,12 @@ public class ReminderFragment extends Fragment{
             }
         });
 
+
+    }
+
+    private void deleteBackgroundTaskForReminder(Reminder reminder) {
+        WorkManager.getInstance(getContext()).cancelAllWorkByTag(reminder.getLocationKey());
+        Toast.makeText(getContext(),"Reminder deleted successfully",Toast.LENGTH_SHORT).show();
     }
 
 
@@ -102,7 +150,7 @@ public class ReminderFragment extends Fragment{
         Log.d(TAG, "onOptionsItemSelected: "+navController.getGraph().getNavigatorName());
         if(item.getItemId()==R.id.add_reminder_btn){
             Log.d(TAG, "onOptionsItemSelected: "+navController.getGraph().toString());
-            navController.navigate(R.id.action_reminderFragment_to_reminder_graph);
+            navController.navigate(R.id.action_reminderFragment_to_addReminderFragment);
             return true;
         }
         return super.onOptionsItemSelected(item);

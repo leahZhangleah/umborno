@@ -31,8 +31,8 @@ public class ReminderViewModel extends ViewModel {
         return reminderRepository.addReminder(reminder);
     }
 
-    public void deleteReminder(Reminder reminder){
-
+    public MutableLiveData<DbResponse<Reminder>> deleteReminder(Reminder reminder){
+        return reminderRepository.deleteReminder(reminder);
     }
 
     public void updateReminder(Reminder reminder){

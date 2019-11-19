@@ -27,15 +27,6 @@
 
     <include app:graph="@navigation/add_city_graph" />
 
-    <fragment
-        android:id="@+id/reminderFragment"
-        android:name="com.example.umborno.ui.ReminderFragment"
-        android:label="Reminders"
-        tools:layout="@layout/fragment_reminder">
-        <action
-            android:id="@+id/action_reminderFragment_to_reminder_graph"
-            app:destination="@id/reminder_graph" />
-    </fragment>
     <include app:graph="@navigation/reminder_graph" />
 
 </navigation>

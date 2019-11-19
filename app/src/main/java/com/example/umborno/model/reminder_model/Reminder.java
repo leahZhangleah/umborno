@@ -1,11 +1,16 @@
 package com.example.umborno.model.reminder_model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity
-public class Reminder{
+public class Reminder implements Parcelable {
     @PrimaryKey(autoGenerate = true)
     private int id;
     private String description;
@@ -15,6 +20,29 @@ public class Reminder{
     private String repeat;
     private String alert;
 
+    public Reminder() {
+    }
+
+    protected Reminder(Parcel in) {
+        id = in.readInt();
+        description = in.readString();
+        dateTime = in.readParcelable(ReminderDate.class.getClassLoader());
+        locationKey = in.readString();
+        repeat = in.readString();
+        alert = in.readString();
+    }
+
+    public static final Creator<Reminder> CREATOR = new Creator<Reminder>() {
+        @Override
+        public Reminder createFromParcel(Parcel in) {
+            return new Reminder(in);
+        }
+
+        @Override
+        public Reminder[] newArray(int size) {
+            return new Reminder[size];
+        }
+    };
 
     public int getId() {
         return id;
@@ -64,5 +92,20 @@ public class Reminder{
         this.alert = alert;
     }
 
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(description);
+        dest.writeParcelable(dateTime,flags);
+        dest.writeString(locationKey);
+        dest.writeString(repeat);
+        dest.writeString(alert);
+    }
 
 }

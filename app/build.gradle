@@ -1,5 +1,5 @@
 apply plugin: 'com.android.application'
-
+apply plugin: "androidx.navigation.safeargs"
 android {
     compileSdkVersion 28
     defaultConfig {
@@ -91,6 +91,9 @@ dependencies {
     //workmanager and its rxjava2 support
     implementation "androidx.work:work-runtime:2.2.0"
     implementation "androidx.work:work-rxjava2:2.2.0"
+
+    //swipe delete menu layout
+    implementation 'com.github.mcxtzhang:SwipeDelMenuLayout:V1.3.0'
     //gms-place
     //implementation 'com.google.android.libraries.places:places:2.0.0'
 

@@ -63,13 +63,14 @@ public class LocalDataSource {
         return weatherDao.getLocationKey();
     }
 
-    /*public void updateReminder(Reminder reminder){
+    public int deleteReminder(Reminder reminder){
+        return weatherDao.delete(reminder);
+    }
+
+   /* public void updateReminder(Reminder reminder){
         weatherDao.update(reminder);
     }
 
-    public void deleteReminder(Reminder reminder){
-        weatherDao.delete(reminder);
-    }
 
     public void deleteAllReminders(){
         weatherDao.deleteAllReminders();

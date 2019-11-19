@@ -1,6 +1,7 @@
 package com.example.umborno.db;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
@@ -28,11 +29,13 @@ public interface WeatherDao {
     @Query("select * from reminder")
     public List<Reminder> getReminders();
 
+    @Delete
+    public int delete(Reminder reminder);
+
     /*@Update
     public void update(Reminder reminder);
 
-    @Delete
-    public void delete(Reminder reminder);
+
 
     @Delete
     public void deleteAllReminders();

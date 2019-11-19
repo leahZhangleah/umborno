@@ -111,7 +111,8 @@ public class MainActivity extends AppCompatActivity implements HasSupportFragmen
                 navController.navigate(R.id.weatherFragment);
                 break;
             case R.id.reminder:
-                navController.navigate(R.id.reminderFragment);
+                navController.navigate(Uri.parse("umborno://reminder"));
+                //navController.navigate(R.id.reminderFragment);
                 //Navigation.findNavController(this,R.id.reminderFragment);
                 //navController.navigate(R.id.reminderFragment);
                 break;

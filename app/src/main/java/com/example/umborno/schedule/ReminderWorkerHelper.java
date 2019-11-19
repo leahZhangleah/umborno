@@ -120,6 +120,7 @@ public class ReminderWorkerHelper {
             return parseReminderRepeat(reminder)
                     .setConstraints(constraints)
                     .setInputData(data)
+                    .addTag(reminder.getLocationKey())
                     .build();
         }
     }

@@ -11,11 +11,6 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
-import androidx.work.Constraints;
-import androidx.work.Data;
-import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 
@@ -40,7 +35,6 @@ import com.example.umborno.R;
 import com.example.umborno.db.DbResponse;
 import com.example.umborno.model.reminder_model.Reminder;
 import com.example.umborno.model.reminder_model.ReminderDate;
-import com.example.umborno.schedule.CurrentWeatherWorker;
 import com.example.umborno.schedule.ReminderWorkerHelper;
 import com.example.umborno.util.PreferenceHelper;
 import com.example.umborno.viewmodel.AlertViewModel;
@@ -49,8 +43,6 @@ import com.example.umborno.viewmodel.ReminderViewModel;
 import com.example.umborno.viewmodel.RepeatViewModel;
 import com.example.umborno.viewmodel.WeatherViewModelProviderFactory;
 import com.google.gson.Gson;
-
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -68,7 +60,7 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
     private EditText newReminderDescription;
     private TextView newReminderLocation,newReminderDate, newReminderTime, newReminderRepeat,newReminderAlert;
     private ProgressBar progressBar;
-    private Reminder newReminder;
+    private Reminder newReminder,reminderToEdit;
     private ReminderDate reminderDate;
     private LocationViewModel locationViewModel;
     private RepeatViewModel repeatViewModel;
@@ -101,8 +93,9 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         navController = Navigation.findNavController(view);
-        //for listening to the value change of location
+        reminderToEdit = AddReminderFragmentArgs.fromBundle(getArguments()).getReminder();
 
+        //for listening to the value change of location
         if(savedInstanceState!=null){
             String json = savedInstanceState.getString(PreferenceHelper.NEW_REMINDER_KEY);
             if(json!=null&&!json.isEmpty()){
@@ -111,7 +104,13 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
                 reminderDate = newReminder.getDateTime();
             }
         }else{
-            newReminder = new Reminder();
+            if(reminderToEdit==null){
+                newReminder = new Reminder();
+                reminderDate = new ReminderDate();
+            }else{
+                newReminder = reminderToEdit;
+                reminderDate = reminderToEdit.getDateTime();
+            }
         }
 
         initViews(view);
@@ -135,7 +134,7 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
         datePicker = view.findViewById(R.id.date_picker);
         timePicker = view.findViewById(R.id.time_picker);
 
-        progressBar = view.findViewById(R.id.progress_bar);
+        progressBar = view.findViewById(R.id.add_progress_bar);
 
         initPickers();
         initViewValues();
@@ -175,7 +174,7 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
                 newReminderAlert.setText(s);
             }
         });
-        reminderViewModel = new ViewModelProvider(navController.getViewModelStoreOwner(R.id.nav_graph),factory).get(ReminderViewModel.class);
+        reminderViewModel = new ViewModelProvider(navController.getViewModelStoreOwner(R.id.reminder_graph),factory).get(ReminderViewModel.class);
         //reminderViewModel = ViewModelProviders.of().get(ReminderViewModel.class);
     }
 
@@ -194,13 +193,12 @@ public class AddReminderFragment extends Fragment implements View.OnClickListene
     private void initViewValues() {
         newReminderDescription.setText(newReminder.getDescription());
         newReminderDescription.addTextChangedListener(this);
+        //todo:nullpointer
+        newReminderRepeat.setText(newReminder.getRepeat());
+        newReminderAlert.setText(newReminder.getAlert());
     }
 
     private void initPickers() {
-        //todo, if this fragment is passed with an id from databse, it will get a saved reminder data
-        if(reminderDate==null){
-            reminderDate = new ReminderDate();
-        }
         datePicker.init(reminderDate.getYear(), reminderDate.getMonth(), reminderDate.getDay(), new DatePicker.OnDateChangedListener() {
             @Override
             public void onDateChanged(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
